@@ -21,6 +21,8 @@ class Interpreter:
 
         self.pointer = 0
 
+        self.in_comment: bool = False
+
     @property
     def cell(self):
         return self.cells[self.pointer]
@@ -32,6 +34,14 @@ class Interpreter:
     def __call__(self, *args, **kwargs):
         while self.i < len(self.code):
             instruction = self.code[self.i]
+
+            if instruction == '#':
+                self.i += 1
+                self.in_comment = not self.in_comment
+                continue
+            if self.in_comment:
+                self.i += 1
+                continue
 
             if instruction == '>':
                 self.right()
