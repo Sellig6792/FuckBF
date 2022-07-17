@@ -1,12 +1,14 @@
 class Interpreter:
     def __init__(self,
                  code: str,
+                 pointer: int = 0,
 
                  stdin: str = None,
                  stdout: str = '',
 
                  stack: list = None,
                  cells: list[int] = None,
+
                  function_cells: list[str] = None,
 
                  is_function: bool = False,
@@ -19,15 +21,16 @@ class Interpreter:
 
         self.stack = stack or []
         self.cells = cells or [0] * 30000
+
         self.function_cells = function_cells or [''] * 30000
 
         self.stdin = stdin
         self.stdout = stdout
 
-        self.pointer = 0
+        self.pointer = pointer
 
-        self.in_comment: bool = False
         self.writing_function: bool = False
+        self.in_comment: bool = False
 
     @property
     def cell(self):
@@ -41,7 +44,11 @@ class Interpreter:
     def function_cell(self):
         return self.function_cells[self.pointer]
 
-    def __call__(self, *args, **kwargs) -> tuple[str, str]:
+    @function_cell.setter
+    def function_cell(self, value):
+        self.function_cells[self.pointer] = value
+
+    def __call__(self, *args, **kwargs) -> dict:
         while self.i < len(self.code):
             instruction = self.code[self.i]
 
@@ -53,47 +60,50 @@ class Interpreter:
                 self.i += 1
                 continue
 
-            if instruction == ':':
-                self.function()
-            elif self.writing_function:
-                self.function_cells[self.pointer] += instruction
+            if self.writing_function and instruction != ';':
+                self.function_cell += instruction
                 self.i += 1
                 continue
 
             if instruction == '>':
                 self.right()
-            elif instruction == '<':
+            if instruction == '<':
                 self.left()
 
-            elif instruction == '+':
+            if instruction == '+':
                 self.add()
-            elif instruction == '-':
+            if instruction == '-':
                 self.sub()
 
-            elif instruction == '.':
+            if instruction == '.':
                 self.outp()
-            elif instruction == ',':
+            if instruction == ',':
                 self.inp()
 
-            elif instruction == '[':
+            if instruction == '[':
                 self.start_loop()
-            elif instruction == ']':
+            if instruction == ']':
                 self.end_loop()
 
-            elif instruction == 'x':
+            if instruction == ':':
+                self.start_function()
+            if instruction == ';':
+                self.end_function()
+            if instruction == 'x':
                 self.execute()
             self.i += 1
 
         if self.is_function:
-            return self.stdin, self.stdout
+            return {
+                'stdin': self.stdin,
+                'stdout': self.stdout,
+                'cells': self.cells,
+                'function_cells': self.function_cells,
+                'stack': self.stack,
+                'pointer': self.pointer
+            }
         else:
             print(self.stdout)
-
-    def function(self):
-        """
-        Write the code between the matching : and : to the function cell at the data pointer.
-        """
-        self.writing_function = not self.writing_function
 
     def right(self):
         """
@@ -156,17 +166,35 @@ class Interpreter:
         then instead of moving the instruction pointer forward to the next command,
         jump it back to the command after the matching [ command.
         """
-        self.i = self.stack.pop() - 1
+        if self.cell:
+            self.i = self.stack.pop() - 1
 
     def execute(self):
         """
         Execute the function at the data pointer.
         """
         function = Interpreter(
-            self.function_cell,
+            self.function_cell, self.pointer,
             self.stdin, self.stdout,
             self.stack, self.cells,
-            self.function_cells, is_function=True
+            self.function_cells, True
         )
-        self.stdin, self.stdout = function()
+        args = function()
+        self.__dict__.update(args)
 
+    def start_function(self):
+        """
+        Start writing a function.
+        """
+        self.function_cell = ''
+        self.writing_function = True
+
+    def end_function(self):
+        """
+        End writing a function
+        """
+        self.writing_function = False
+
+
+if __name__ == '__main__':
+    Interpreter(open('../test.fbf', mode='r+').read())()
