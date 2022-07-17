@@ -169,4 +169,3 @@ class Interpreter:
             self.function_cells, is_function=True
         )
         self.stdin, self.stdout = function()
-
