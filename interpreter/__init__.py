@@ -23,6 +23,7 @@ class Interpreter:
         self.cells = cells or [0] * 30000
 
         self.function_cells = function_cells or [''] * 30000
+        self.opened_functions = []
 
         self.stdin = stdin
         self.stdout = stdout
@@ -60,8 +61,18 @@ class Interpreter:
                 self.i += 1
                 continue
 
-            if self.writing_function and instruction != ';':
+            if self.writing_function:
+                if instruction == ';':
+                    # Close the last function opened. If there is only one function opened left, end the function.
+                    self.opened_functions.pop()
+                    if len(self.opened_functions) == 0:
+                        self.end_function()
+                        self.i += 1
+                        continue
+
                 self.function_cell += instruction
+                if instruction == ':':
+                    self.opened_functions.append(self.i)
                 self.i += 1
                 continue
 
@@ -87,8 +98,7 @@ class Interpreter:
 
             if instruction == ':':
                 self.start_function()
-            if instruction == ';':
-                self.end_function()
+
             if instruction == 'x':
                 self.execute()
             self.i += 1
@@ -187,6 +197,7 @@ class Interpreter:
         Start writing a function.
         """
         self.function_cell = ''
+        self.opened_functions.append(self.i)
         self.writing_function = True
 
     def end_function(self):
