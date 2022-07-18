@@ -20,10 +20,9 @@
   <p align="center">
     Improved BrainFuck
     <br />
-    <a href="https://github.com/Sellig6792/FuckBrainFuck"><strong>Explore the docs »</strong></a>
+    <a href="./DOCUMENTATION.md"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Sellig6792/FuckBrainFuck">View Demo</a>
     ·
     <a href="https://github.com/Sellig6792/FuckBrainFuck/issues">Report Bug</a>
     ·
@@ -51,7 +50,6 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
