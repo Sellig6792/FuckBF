@@ -176,8 +176,7 @@ class Interpreter:
         then instead of moving the instruction pointer forward to the next command,
         jump it back to the command after the matching [ command.
         """
-        if self.cell:
-            self.i = self.stack.pop() - 1
+        self.i = self.stack.pop() - 1
 
     def execute(self):
         """
