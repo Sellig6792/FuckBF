@@ -23,7 +23,6 @@
     <a href="./DOCUMENTATION.md"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    ·
     <a href="https://github.com/Sellig6792/FuckBrainFuck/issues">Report Bug</a>
     ·
     <a href="https://github.com/Sellig6792/FuckBrainFuck/issues">Request Feature</a>
