@@ -205,7 +205,3 @@ class Interpreter:
         End writing a function
         """
         self.writing_function = False
-
-
-if __name__ == '__main__':
-    Interpreter(open('../test.fbf', mode='r+').read())()
