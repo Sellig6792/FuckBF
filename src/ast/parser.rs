@@ -56,6 +56,22 @@ impl Parser {
 
                 '´' => instructions.push(Instruction::new(MoveLeftScope)),
                 '`' => instructions.push(Instruction::new(MoveRightScope)),
+
+                ':' => {
+                    // The end of the comment is ';'
+                    // Jump to the end of the comment
+                    while index < self.program.len() {
+                        let char = match self.program.chars().nth(index) {
+                            Some(char) => char,
+                            None => return (instructions, index),
+                        };
+                        if char == ';' {
+                            break;
+                        }
+                        index += 1;
+                    }
+                }
+
                 _ => {}
             }
 
