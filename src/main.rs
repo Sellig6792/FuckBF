@@ -1,9 +1,9 @@
 mod ast;
-mod evaluator;
+mod evaluation;
 
 use std::fs;
 
-use evaluator::Evaluator;
+use crate::evaluation::Evaluator;
 
 
 fn main() {

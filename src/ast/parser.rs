@@ -3,63 +3,63 @@ use crate::ast::instructions::InstructionType::*;
 
 pub struct Parser {
     program: String,
-    index: usize,
 }
 
 impl Parser {
     pub fn new(program: String) -> Parser {
-        Parser { program, index: 0 }
+        let program = program.replace(' ', "").replace('\t', "").replace('\r', "").replace('\n', "");
+
+        Parser { program }
     }
 
     pub fn parse(&mut self) -> Vec<Instruction> {
+        let (instructions, _) = self._parse(None, None);
+        return instructions;
+    }
+    fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
+        let mut index = index.unwrap_or(0);
         let mut instructions = Vec::new();
 
-        while self.index < self.program.len() {
-            match self.program.chars().nth(self.index).unwrap() {
-                '>' => instructions.push(Instruction::new(MoveRight)),
-                '<' => instructions.push(Instruction::new(MoveLeft)),
+        while index < self.program.len() {
+            let char = match self.program.chars().nth(index) {
+                Some(char) => char,
+                None => return (instructions, index),
+            };
+            if stop_char.is_some() && char == stop_char.unwrap() {
+                return (instructions, index);
+            }
+
+            match char {
                 '+' => instructions.push(Instruction::new(Increment)),
                 '-' => instructions.push(Instruction::new(Decrement)),
+
+                '<' => instructions.push(Instruction::new(MoveLeft)),
+                '>' => instructions.push(Instruction::new(MoveRight)),
+
                 '.' => instructions.push(Instruction::new(Output)),
                 ',' => instructions.push(Instruction::new(Input)),
+
                 '[' => {
-                    let (loop_instructions, index) = self.parse_loop();
-                    self.index = index;
-                    instructions.push(Instruction::new(Loop {
-                        instructions: loop_instructions,
-                    }));
+                    let (loop_instructions, new_index) = self._parse(Some(index + 1), Some(']'));
+                    instructions.push(Instruction::new(Loop { instructions: loop_instructions }));
+                    index = new_index;
                 }
-                ']' => break,
-                _ => (),
-            }
+                '{' => {
+                    let (function_instructions, new_index) = self._parse(Some(index + 1), Some('}'));
+                    instructions.push(Instruction::new(Function { instructions: function_instructions }));
+                    index = new_index;
+                }
 
-            self.index += 1;
-        }
+                '=' => instructions.push(Instruction::new(CallFunction)),
 
-        instructions
-    }
-
-    fn parse_loop(&self) -> (Vec<Instruction>, usize) {
-        let mut index = self.index + 1;
-        let mut loop_count = 1;
-
-        while index < self.program.len() {
-            match self.program.chars().nth(index).unwrap() {
-                '[' => loop_count += 1,
-                ']' => loop_count -= 1,
-                _ => (),
-            }
-
-            if loop_count == 0 {
-                break;
+                '´' => instructions.push(Instruction::new(MoveLeftScope)),
+                '`' => instructions.push(Instruction::new(MoveRightScope)),
+                _ => {}
             }
 
             index += 1;
         }
 
-        let loop_instructions = self.program[self.index + 1..index].to_string();
-        let mut parser = Parser::new(loop_instructions);
-
-        (parser.parse(), index)
+        return (instructions, index);
     }
 }

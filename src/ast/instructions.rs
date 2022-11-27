@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Debug, Clone, Default)]
 pub enum InstructionType {
     Increment,
     Decrement,
@@ -11,8 +12,18 @@ pub enum InstructionType {
     Output,
 
     Loop { instructions: Vec<Instruction> },
+
+    Function { instructions: Vec<Instruction> },
+    CallFunction,
+
+    MoveLeftScope,
+    MoveRightScope,
+
+    #[default]
+    Default,
 }
 
+#[derive(Clone, Default)]
 pub struct Instruction {
     pub instruction: InstructionType,
 }
@@ -23,31 +34,11 @@ impl Instruction {
     }
 }
 
-impl Clone for Instruction {
-    fn clone(&self) -> Self {
-        Instruction {
-            instruction: match self.instruction {
-                InstructionType::Increment => InstructionType::Increment,
-                InstructionType::Decrement => InstructionType::Decrement,
-
-                InstructionType::MoveLeft => InstructionType::MoveLeft,
-                InstructionType::MoveRight => InstructionType::MoveRight,
-
-                InstructionType::Input => InstructionType::Input,
-                InstructionType::Output => InstructionType::Output,
-
-                InstructionType::Loop { ref instructions } => InstructionType::Loop {
-                    instructions: instructions.clone(),
-                },
-            },
-        }
-    }
-}
 
 
 impl fmt::Display for Instruction {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.instruction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.instruction {
             InstructionType::Increment => write!(f, "Increment"),
             InstructionType::Decrement => write!(f, "Decrement"),
 
@@ -57,13 +48,22 @@ impl fmt::Display for Instruction {
             InstructionType::Input => write!(f, "Input"),
             InstructionType::Output => write!(f, "Output"),
 
-            InstructionType::Loop { ref instructions } => {
-                write!(f, "Loop{:?} ", instructions)
+            InstructionType::Loop { instructions } => {
+                write!(f, "Loop{:?}", instructions)
             }
+
+            InstructionType::Function { instructions } => {
+                write!(f, "Function{:?}", instructions)
+            }
+            InstructionType::CallFunction => write!(f, "CallFunction"),
+
+            InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
+            InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
+
+            InstructionType::Default => write!(f, "Default"),
         }
     }
 }
-
 
 impl fmt::Debug for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
