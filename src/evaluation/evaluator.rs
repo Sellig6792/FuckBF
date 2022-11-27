@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::ast::instructions::{Instruction, InstructionType};
 
 use crate::evaluation::Scope;
@@ -123,14 +125,41 @@ impl Evaluator {
                     if self.scope_pointer != 0 {
                         self.scope_pointer -= 1;
                     }
-                },
+                }
                 InstructionType::MoveRightScope => {
                     if self.scope_pointer != self.scopes.len() - 1 {
                         self.scope_pointer += 1;
                     }
-                },
+                }
 
-                _ => (),
+                InstructionType::Random => {
+                    /*
+                    Generate a random number between the left cell's value and the right cell's value (including both)
+
+                    If the left cell's value is greater than the right cell's value,
+                    generate a random number between the left cell's value and 255 and the right cell's value and 0
+                     */
+                    let left = self.scopes[self.scope_pointer].memory[self.memory_pointer - 1];
+                    let right = self.scopes[self.scope_pointer].memory[self.memory_pointer + 1];
+
+                    if right > left {
+                        let r = rand::thread_rng().gen_range(left..=right);
+                        self.scopes[self.scope_pointer].memory[self.memory_pointer] = r;
+                    } else {
+                        let left_to_255 = rand::thread_rng().gen_range(left..=255);
+                        let _0_to_right = rand::thread_rng().gen_range(0..=right);
+
+                        let left_to_255_or_right_to_0 = rand::thread_rng().gen_range(0..=1);
+
+                        if left_to_255_or_right_to_0 == 0 {
+                            self.scopes[self.scope_pointer].memory[self.memory_pointer] = left_to_255;
+                        } else {
+                            self.scopes[self.scope_pointer].memory[self.memory_pointer] = _0_to_right;
+                        }
+                    }
+                }
+
+                InstructionType::Default => (),
             }
         }
 

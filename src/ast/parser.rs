@@ -52,6 +52,8 @@ impl Parser {
 
                 '=' => instructions.push(Instruction::new(CallFunction)),
 
+                '?' => instructions.push(Instruction::new(Random)),
+
                 '´' => instructions.push(Instruction::new(MoveLeftScope)),
                 '`' => instructions.push(Instruction::new(MoveRightScope)),
                 _ => {}

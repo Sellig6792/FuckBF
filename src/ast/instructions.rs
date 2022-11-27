@@ -19,6 +19,8 @@ pub enum InstructionType {
     MoveLeftScope,
     MoveRightScope,
 
+    Random,
+
     #[default]
     Default,
 }
@@ -59,6 +61,8 @@ impl fmt::Display for Instruction {
 
             InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
             InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
+
+            InstructionType::Random => write!(f, "Random"),
 
             InstructionType::Default => write!(f, "Default"),
         }
