@@ -80,10 +80,12 @@ impl Evaluator {
                         // Convert the input to a vector of u8
                         self.input = input.trim().bytes().collect();
                     }
-                    self.scopes[self.scope_pointer].memory[self.memory_pointer] = self.input.remove(0);
+                    self.scopes[self.scope_pointer].memory[self.memory_pointer] =
+                        self.input.remove(0);
                 }
                 InstructionType::Output => {
-                    self.output_buffer.push(self.scopes[self.scope_pointer].memory[self.memory_pointer]);
+                    self.output_buffer
+                        .push(self.scopes[self.scope_pointer].memory[self.memory_pointer]);
                 }
 
                 InstructionType::Loop { ref instructions } => {
@@ -97,13 +99,17 @@ impl Evaluator {
                     }
                 }
                 InstructionType::Function { ref instructions } => {
-                    self.scopes[self.scope_pointer].function_memory[self.memory_pointer] = Instruction::new(InstructionType::Function {
-                        instructions: instructions.clone(),
-                    });
+                    self.scopes[self.scope_pointer].function_memory[self.memory_pointer] =
+                        Instruction::new(InstructionType::Function {
+                            instructions: instructions.clone(),
+                        });
                 }
 
                 InstructionType::CallFunction => {
-                    match self.scopes[self.scope_pointer].function_memory[self.memory_pointer].instruction.clone() {
+                    match self.scopes[self.scope_pointer].function_memory[self.memory_pointer]
+                        .instruction
+                        .clone()
+                    {
                         InstructionType::Function { ref instructions } => {
                             self.scopes.push(Scope::new());
                             self.scope_pointer = self.scopes.len() - 1;
@@ -152,9 +158,11 @@ impl Evaluator {
                         let left_to_255_or_right_to_0 = rand::thread_rng().gen_range(0..=1);
 
                         if left_to_255_or_right_to_0 == 0 {
-                            self.scopes[self.scope_pointer].memory[self.memory_pointer] = left_to_255;
+                            self.scopes[self.scope_pointer].memory[self.memory_pointer] =
+                                left_to_255;
                         } else {
-                            self.scopes[self.scope_pointer].memory[self.memory_pointer] = _0_to_right;
+                            self.scopes[self.scope_pointer].memory[self.memory_pointer] =
+                                _0_to_right;
                         }
                     }
                 }

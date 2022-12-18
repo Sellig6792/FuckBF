@@ -7,7 +7,11 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(program: String) -> Parser {
-        let program = program.replace(' ', "").replace('\t', "").replace('\r', "").replace('\n', "");
+        let program = program
+            .replace(' ', "")
+            .replace('\t', "")
+            .replace('\r', "")
+            .replace('\n', "");
 
         Parser { program }
     }
@@ -16,6 +20,7 @@ impl Parser {
         let (instructions, _) = self._parse(None, None);
         return instructions;
     }
+
     fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
         let mut index = index.unwrap_or(0);
         let mut instructions = Vec::new();
@@ -41,12 +46,17 @@ impl Parser {
 
                 '[' => {
                     let (loop_instructions, new_index) = self._parse(Some(index + 1), Some(']'));
-                    instructions.push(Instruction::new(Loop { instructions: loop_instructions }));
+                    instructions.push(Instruction::new(Loop {
+                        instructions: loop_instructions,
+                    }));
                     index = new_index;
                 }
                 '{' => {
-                    let (function_instructions, new_index) = self._parse(Some(index + 1), Some('}'));
-                    instructions.push(Instruction::new(Function { instructions: function_instructions }));
+                    let (function_instructions, new_index) =
+                        self._parse(Some(index + 1), Some('}'));
+                    instructions.push(Instruction::new(Function {
+                        instructions: function_instructions,
+                    }));
                     index = new_index;
                 }
 

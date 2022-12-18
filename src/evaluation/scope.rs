@@ -1,6 +1,5 @@
 use crate::ast::instructions::Instruction;
 
-
 #[derive(Debug)]
 pub struct Scope {
     pub memory: Box<[u8; 30000]>,

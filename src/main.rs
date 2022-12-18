@@ -5,7 +5,6 @@ use std::fs;
 
 use crate::evaluation::Evaluator;
 
-
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
@@ -17,7 +16,6 @@ fn main() {
             return;
         }
     };
-
 
     // Read the file and quit if it's not found
     let program = if fs::metadata(&path).is_ok() {

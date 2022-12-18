@@ -11,9 +11,13 @@ pub enum InstructionType {
     Input,
     Output,
 
-    Loop { instructions: Vec<Instruction> },
+    Loop {
+        instructions: Vec<Instruction>,
+    },
 
-    Function { instructions: Vec<Instruction> },
+    Function {
+        instructions: Vec<Instruction>,
+    },
     CallFunction,
 
     MoveLeftScope,
@@ -35,8 +39,6 @@ impl Instruction {
         Instruction { instruction }
     }
 }
-
-
 
 impl fmt::Display for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
