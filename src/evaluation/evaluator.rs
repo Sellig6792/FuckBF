@@ -26,19 +26,15 @@ impl Evaluator {
 
             memory_pointer: 0,
 
-            input: Vec::new(),
-            output_buffer: Vec::new(),
+            input: vec![],
+            output_buffer: vec![],
         }
     }
 
-    pub fn evaluate(&mut self, loop_: Option<InstructionType>, show_output: Option<bool>) {
-        let instructions = if loop_.is_some() {
-            match loop_.unwrap() {
-                InstructionType::Loop { instructions } => instructions,
-                _ => panic!("Invalid instruction type"),
-            }
-        } else {
-            self.program.clone()
+    pub fn evaluate(&mut self, container_to_execute: Option<Instruction>, show_output: Option<bool>) {
+        let instructions = match container_to_execute {
+            Some(container) => container.get_content(),
+            None => self.program.clone(),
         };
 
         for instruction in instructions.iter() {
@@ -88,43 +84,31 @@ impl Evaluator {
                         .push(self.scopes[self.scope_pointer].memory[self.memory_pointer]);
                 }
 
-                InstructionType::Loop { ref instructions } => {
+                InstructionType::Loop  => {
                     while self.scopes[self.scope_pointer].memory[self.memory_pointer] != 0 {
                         self.evaluate(
-                            Some(InstructionType::Loop {
-                                instructions: instructions.clone(),
-                            }),
-                            Some(false),
-                        );
+                            Some(instruction.clone()),
+                            Some(false)
+                        )
                     }
                 }
-                InstructionType::Function { ref instructions } => {
+                InstructionType::Function => {
                     self.scopes[self.scope_pointer].function_memory[self.memory_pointer] =
-                        Instruction::new(InstructionType::Function {
-                            instructions: instructions.clone(),
-                        });
+                        Instruction::new(
+                            InstructionType::Function,
+                            Some(instruction.get_content())
+                        );
                 }
 
                 InstructionType::CallFunction => {
-                    match self.scopes[self.scope_pointer].function_memory[self.memory_pointer]
-                        .instruction
-                        .clone()
-                    {
-                        InstructionType::Function { ref instructions } => {
-                            self.scopes.push(Scope::new());
-                            self.scope_pointer = self.scopes.len() - 1;
-                            self.evaluate(
-                                Some(InstructionType::Loop {
-                                    instructions: instructions.clone(),
-                                }),
-                                Some(false),
-                            );
-                            self.scopes.pop();
-                            self.scope_pointer -= 1;
-                        }
-                        InstructionType::Default => (),
-                        _ => panic!("Invalid instruction type in function memory"),
-                    }
+                    self.scopes.push(Scope::new());
+                    self.scope_pointer += 1;
+                    self.evaluate(
+                        Some(self.scopes[self.scope_pointer - 1].function_memory[self.memory_pointer].clone()),
+                        Some(false)
+                    );
+                    self.scopes.pop();
+                    self.scope_pointer -= 1;
                 }
 
                 InstructionType::MoveLeftScope => {
@@ -166,8 +150,6 @@ impl Evaluator {
                         }
                     }
                 }
-
-                InstructionType::Default => (),
             }
         }
 
