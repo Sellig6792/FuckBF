@@ -1,4 +1,4 @@
-use crate::ast::instructions::Instruction;
+use crate::ast::instructions::{Instruction, InstructionType};
 
 #[derive(Debug)]
 pub struct Scope {
@@ -8,9 +8,9 @@ pub struct Scope {
 
 impl Scope {
     pub fn new() -> Scope {
-        let mut function_memory_vec = Vec::new();
+        let mut function_memory_vec = vec![];
         for _ in 0..30000 {
-            function_memory_vec.push(Instruction::default());
+            function_memory_vec.push(Instruction::new(InstructionType::Function, Some(vec![])));
         }
 
         Scope {

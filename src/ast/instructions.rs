@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub enum InstructionType {
     Increment,
     Decrement,
@@ -11,32 +11,41 @@ pub enum InstructionType {
     Input,
     Output,
 
-    Loop {
-        instructions: Vec<Instruction>,
-    },
+    Loop,
 
-    Function {
-        instructions: Vec<Instruction>,
-    },
+    Function,
     CallFunction,
 
     MoveLeftScope,
     MoveRightScope,
 
     Random,
-
-    #[default]
-    Default,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Instruction {
     pub instruction: InstructionType,
+    content: Option<Vec<Instruction>>,
 }
 
 impl Instruction {
-    pub fn new(instruction: InstructionType) -> Instruction {
-        Instruction { instruction }
+    pub fn new(instruction: InstructionType, content: Option<Vec<Instruction>>) -> Instruction {
+        Instruction {
+            instruction,
+            content,
+        }
+    }
+    pub fn get_content(&self) -> Vec<Instruction> {
+        match &self.content {
+            Some(content) => content.clone(),
+            None => panic!("Instruction has no content"),
+        }
+    }
+    pub fn get_content_ref(&self) -> &Vec<Instruction> {
+        match &self.content {
+            Some(content) => content,
+            None => panic!("Instruction has no content"),
+        }
     }
 }
 
@@ -52,21 +61,15 @@ impl fmt::Display for Instruction {
             InstructionType::Input => write!(f, "Input"),
             InstructionType::Output => write!(f, "Output"),
 
-            InstructionType::Loop { instructions } => {
-                write!(f, "Loop{:?}", instructions)
-            }
+            InstructionType::Loop => write!(f, "Loop{:?}", self.get_content_ref()),
 
-            InstructionType::Function { instructions } => {
-                write!(f, "Function{:?}", instructions)
-            }
+            InstructionType::Function => write!(f, "Function{:?}", self.get_content_ref()),
             InstructionType::CallFunction => write!(f, "CallFunction"),
 
             InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
             InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
 
             InstructionType::Random => write!(f, "Random"),
-
-            InstructionType::Default => write!(f, "Default"),
         }
     }
 }

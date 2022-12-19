@@ -1,5 +1,4 @@
-use crate::ast::instructions::Instruction;
-use crate::ast::instructions::InstructionType::*;
+use crate::ast::instructions::{Instruction, InstructionType};
 
 pub struct Parser {
     program: String,
@@ -23,7 +22,7 @@ impl Parser {
 
     fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
         let mut index = index.unwrap_or(0);
-        let mut instructions = Vec::new();
+        let mut instructions = vec![];
 
         while index < self.program.len() {
             let char = match self.program.chars().nth(index) {
@@ -35,37 +34,33 @@ impl Parser {
             }
 
             match char {
-                '+' => instructions.push(Instruction::new(Increment)),
-                '-' => instructions.push(Instruction::new(Decrement)),
+                '+' => instructions.push(Instruction::new(InstructionType::Increment, None)),
+                '-' => instructions.push(Instruction::new(InstructionType::Decrement, None)),
 
-                '<' => instructions.push(Instruction::new(MoveLeft)),
-                '>' => instructions.push(Instruction::new(MoveRight)),
+                '<' => instructions.push(Instruction::new(InstructionType::MoveLeft, None)),
+                '>' => instructions.push(Instruction::new(InstructionType::MoveRight, None)),
 
-                '.' => instructions.push(Instruction::new(Output)),
-                ',' => instructions.push(Instruction::new(Input)),
+                '.' => instructions.push(Instruction::new(InstructionType::Output, None)),
+                ',' => instructions.push(Instruction::new(InstructionType::Input, None)),
 
                 '[' => {
                     let (loop_instructions, new_index) = self._parse(Some(index + 1), Some(']'));
-                    instructions.push(Instruction::new(Loop {
-                        instructions: loop_instructions,
-                    }));
+                    instructions.push(Instruction::new(InstructionType::Loop, Some(loop_instructions)));
                     index = new_index;
                 }
                 '{' => {
                     let (function_instructions, new_index) =
                         self._parse(Some(index + 1), Some('}'));
-                    instructions.push(Instruction::new(Function {
-                        instructions: function_instructions,
-                    }));
+                    instructions.push(Instruction::new(InstructionType::Function, Some(function_instructions)));
                     index = new_index;
                 }
 
-                '=' => instructions.push(Instruction::new(CallFunction)),
+                '=' => instructions.push(Instruction::new(InstructionType::CallFunction, None)),
 
-                '?' => instructions.push(Instruction::new(Random)),
+                '?' => instructions.push(Instruction::new(InstructionType::Random, None)),
 
-                '´' => instructions.push(Instruction::new(MoveLeftScope)),
-                '`' => instructions.push(Instruction::new(MoveRightScope)),
+                '´' => instructions.push(Instruction::new(InstructionType::MoveLeftScope, None)),
+                '`' => instructions.push(Instruction::new(InstructionType::MoveRightScope, None)),
 
                 ':' => {
                     // The end of the comment is ';'
