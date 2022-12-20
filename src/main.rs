@@ -1,5 +1,6 @@
 mod ast;
 mod evaluation;
+mod optimization;
 
 use std::fs;
 
@@ -29,7 +30,11 @@ fn main() {
     let mut parser = ast::Parser::new(program);
     let instructions = parser.parse();
 
+    // Optimize the program
+    let mut optimizer = optimization::Optimizer::new(instructions.clone());
+    let optimized_instructions = optimizer.optimize();
+
     // Run the program
-    let mut brainfuck = Evaluator::new(instructions);
+    let mut brainfuck = Evaluator::new(instructions.clone());
     brainfuck.evaluate(None, None);
 }

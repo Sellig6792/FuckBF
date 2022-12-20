@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum InstructionType {
     Increment,
     Decrement,
@@ -22,16 +22,41 @@ pub enum InstructionType {
     Random,
 }
 
+impl fmt::Display for InstructionType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            InstructionType::Increment => write!(f, "Increment"),
+            InstructionType::Decrement => write!(f, "Decrement"),
+
+            InstructionType::MoveLeft => write!(f, "MoveLeft"),
+            InstructionType::MoveRight => write!(f, "MoveRight"),
+
+            InstructionType::Input => write!(f, "Input"),
+            InstructionType::Output => write!(f, "Output"),
+
+            InstructionType::Loop => write!(f, "Loop"),
+
+            InstructionType::Function => write!(f, "Function"),
+            InstructionType::CallFunction => write!(f, "CallFunction"),
+
+            InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
+            InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
+
+            InstructionType::Random => write!(f, "Random"),
+        }
+    }
+}
 #[derive(Clone)]
 pub struct Instruction {
-    pub instruction: InstructionType,
+    pub instruction_type: InstructionType,
     content: Option<Vec<Instruction>>,
 }
 
+
 impl Instruction {
-    pub fn new(instruction: InstructionType, content: Option<Vec<Instruction>>) -> Instruction {
+    pub fn new(instruction_type: InstructionType, content: Option<Vec<Instruction>>) -> Instruction {
         Instruction {
-            instruction,
+            instruction_type,
             content,
         }
     }
@@ -51,7 +76,7 @@ impl Instruction {
 
 impl fmt::Display for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.instruction {
+        match &self.instruction_type {
             InstructionType::Increment => write!(f, "Increment"),
             InstructionType::Decrement => write!(f, "Decrement"),
 
