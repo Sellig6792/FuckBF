@@ -1,6 +1,7 @@
 use rand::Rng;
 
 use crate::ast::instructions::{Instruction, InstructionType};
+use crate::optimization::optimized_instructions::OptimizedInstruction;
 
 use crate::evaluation::Scope;
 
@@ -31,14 +32,18 @@ impl Evaluator {
         }
     }
 
-    pub fn evaluate(&mut self, container_to_execute: Option<Instruction>, show_output: Option<bool>) {
+    pub fn evaluate(
+        &mut self,
+        container_to_execute: Option<Instruction>,
+        show_output: Option<bool>,
+    ) {
         let instructions = match container_to_execute {
             Some(container) => container.get_content(),
             None => self.program.clone(),
         };
 
         for instruction in instructions.iter() {
-            match &instruction.instruction {
+            match &instruction.instruction_type {
                 InstructionType::Increment => {
                     if self.scopes[self.scope_pointer].memory[self.memory_pointer] == 255 {
                         self.scopes[self.scope_pointer].memory[self.memory_pointer] = 0;
@@ -84,19 +89,16 @@ impl Evaluator {
                         .push(self.scopes[self.scope_pointer].memory[self.memory_pointer]);
                 }
 
-                InstructionType::Loop  => {
+                InstructionType::Loop => {
                     while self.scopes[self.scope_pointer].memory[self.memory_pointer] != 0 {
-                        self.evaluate(
-                            Some(instruction.clone()),
-                            Some(false)
-                        )
+                        self.evaluate(Some(instruction.clone()), Some(false))
                     }
                 }
                 InstructionType::Function => {
                     self.scopes[self.scope_pointer].function_memory[self.memory_pointer] =
                         Instruction::new(
                             InstructionType::Function,
-                            Some(instruction.get_content())
+                            Some(instruction.get_content()),
                         );
                 }
 
@@ -104,8 +106,12 @@ impl Evaluator {
                     self.scopes.push(Scope::new());
                     self.scope_pointer += 1;
                     self.evaluate(
-                        Some(self.scopes[self.scope_pointer - 1].function_memory[self.memory_pointer].clone()),
-                        Some(false)
+                        Some(
+                            self.scopes[self.scope_pointer - 1].function_memory
+                                [self.memory_pointer]
+                                .clone(),
+                        ),
+                        Some(false),
                     );
                     self.scopes.pop();
                     self.scope_pointer -= 1;
@@ -159,3 +165,15 @@ impl Evaluator {
         }
     }
 }
+
+struct OptimizedEvaluator {
+    program: Vec<OptimizedInstruction>,
+
+    scopes: Vec<Scope>,
+    scope_pointer: usize,
+
+    memory_pointer: usize,
+    input: Vec<u8>,
+    output_buffer: Vec<u8>,
+}
+
