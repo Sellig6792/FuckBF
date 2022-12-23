@@ -30,7 +30,17 @@ impl Optimizer {
                     if last_optimized_instruction.get_instruction_type()
                         == instruction.get_instruction_type()
                     {
-                        last_optimized_instruction.add(1);
+                        match instruction.get_instruction_type() {
+                            InstructionType::Function => {
+                                optimized_instructions.pop();
+                                optimized_instructions.push(OptimizedInstruction::new(
+                                    instruction.get_instruction_type(),
+                                    Some(self.optimize_container(instruction.get_content())),
+                                ));
+                            }
+                            _ => last_optimized_instruction.add(1)
+                        }
+
                     } else {
                         match instruction.get_instruction_type() {
                             InstructionType::Function | InstructionType::Loop => {

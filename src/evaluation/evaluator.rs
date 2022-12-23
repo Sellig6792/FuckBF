@@ -172,4 +172,19 @@ mod tests {
             "Hello World!\n"
         );
     }
+
+    #[test]
+    fn test_override_function() {
+        let program = String::from("{++++[>++++++++++++<-]>.}{++++[>++++++++++++<-]>+.}=");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let optimized_instructions = optimizer.optimize();
+        let mut brainfuck = Evaluator::new(optimized_instructions);
+        brainfuck.evaluate(None, Some(false));
+        assert_eq!(
+            String::from_utf8(brainfuck.output_buffer).unwrap(),
+            "1"
+        );
+    }
 }
