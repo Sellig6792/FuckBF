@@ -5,8 +5,8 @@ use crate::ast::instructions::{InstructionTrait, InstructionType};
 use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     program: Vec<T>,
 
@@ -17,8 +17,8 @@ pub struct Evaluator<T: InstructionTrait<T>>
 }
 
 impl<T: InstructionTrait<T> + 'static> Evaluator<T>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
@@ -69,8 +69,10 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                         .set_value(self.input.remove(0));
                 }
                 InstructionType::Output => {
-                    self.output_buffer
-                        .push(self.scopes.get_current_cell().get_value());
+                    for _ in 0..instruction.get_amount() {
+                        self.output_buffer
+                            .push(self.scopes.get_current_cell().get_value());
+                    }
                 }
 
                 InstructionType::Loop => {
@@ -99,10 +101,12 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                 }
 
                 InstructionType::MoveLeftScope => {
-                    self.scopes.move_left_scope(instruction.get_amount() as usize);
+                    self.scopes
+                        .move_left_scope(instruction.get_amount() as usize);
                 }
                 InstructionType::MoveRightScope => {
-                    self.scopes.move_right_scope(instruction.get_amount() as usize);
+                    self.scopes
+                        .move_right_scope(instruction.get_amount() as usize);
                 }
 
                 InstructionType::Random => {
@@ -144,5 +148,28 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
             None => println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap()),
             _ => (),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast;
+    use crate::optimization;
+
+    #[test]
+    fn test_hello_world() {
+        let program = String::from("++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let optimized_instructions = optimizer.optimize();
+        let mut brainfuck = Evaluator::new(optimized_instructions);
+        brainfuck.evaluate(None, Some(false));
+
+        assert_eq!(
+            String::from_utf8(brainfuck.output_buffer).unwrap(),
+            "Hello World!\n"
+        );
     }
 }
