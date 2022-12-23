@@ -4,8 +4,8 @@ use crate::evaluation::Cell;
 
 #[derive(Clone)]
 pub struct Scope<T: InstructionTrait<T>> {
-    memory: Vec<Cell>,
-    function_memory: Vec<T>,
+    memory: Box<[Cell; 30000]>,
+    function_memory: Box<[T; 30000]>,
 }
 
 impl<T: InstructionTrait<T>> Scope<T> {
@@ -16,7 +16,7 @@ impl<T: InstructionTrait<T>> Scope<T> {
         }
 
         Scope {
-            memory: vec![Cell::new(0); 30000],
+            memory: Box::new([Cell::new(0); 30000]),
             function_memory: match function_memory_vec.try_into() {
                 Ok(function_memory) => function_memory,
                 Err(_) => panic!("Could not convert Vec to Box<[T; 30000]>"),
@@ -24,20 +24,8 @@ impl<T: InstructionTrait<T>> Scope<T> {
         }
     }
 
-    pub fn get_cell(&self, index: usize) -> &Cell {
-        &self.memory[index]
-    }
-
-    pub fn get_cell_mut(&mut self, index: usize) -> &mut Cell {
-        &mut self.memory[index]
-    }
-
     pub fn get_function(&self, index: usize) -> &T {
         &self.function_memory[index]
-    }
-
-    pub fn get_function_mut(&mut self, index: usize) -> &mut T {
-        &mut self.function_memory[index]
     }
 }
 
@@ -82,27 +70,15 @@ where
         self.scopes.get(index)
     }
 
-    pub fn get_scope_at_mut(&mut self, index: usize) -> Option<&mut Scope<T>> {
-        self.scopes.get_mut(index)
-    }
-
-    pub fn len(&self) -> usize {
-        self.scopes.len()
-    }
-
     pub fn move_right(&mut self, amount: usize) {
-        // If the index exceeds the memory size, add a new cell to the memory and set the index to the new cell
-        let new_index = self.index + amount;
+        let sum: usize = self.index + amount;
 
-        match self.get_cell_at(new_index) {
-            Some(_) => self.index = new_index,
-            None => {
-                let exceed = new_index - self.get_current_scope().memory.len();
-                let new_cells = vec![Cell::new(0); exceed];
-                self.get_current_scope_mut().memory.extend(new_cells);
-                self.index = new_index;
-            }
-        }
+        self.index = if sum > 29999 {
+            sum - 30000
+        } else {
+            sum
+        };
+
     }
 
     pub fn move_left(&mut self, amount: usize) {
@@ -110,10 +86,10 @@ where
         let sub: isize = self.index as isize - amount as isize;
 
         self.index = if sub < 0 {
-            self.get_current_scope().memory.len() - (sub.abs() as usize - 1) - 1
+            30000 - (sub.abs() as usize)
         } else {
             sub as usize
-        };
+        }
     }
 
     pub fn move_right_scope(&mut self, amount: usize) {
@@ -150,16 +126,8 @@ where
         self.get_current_scope_mut().memory.get_mut(index)
     }
 
-    pub fn get_current_function(&self) -> &T {
-        self.get_function_at(self.index).unwrap()
-    }
-
     pub fn get_current_function_mut(&mut self) -> &mut T {
         self.get_function_at_mut(self.index).unwrap()
-    }
-
-    pub fn get_function_at(&self, index: usize) -> Option<&T> {
-        self.get_current_scope().function_memory.get(index)
     }
 
     pub fn get_function_at_mut(&mut self, index: usize) -> Option<&mut T> {
@@ -174,5 +142,96 @@ where
     pub fn pop(&mut self) {
         self.scopes.pop();
         self.scope_index -= 1;
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::ast::instructions::Instruction;
+    use super::*;
+
+    #[test]
+    fn test_move_right() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.move_right(1);
+        assert_eq!(scopes.get_index(), 1);
+    }
+
+    #[test]
+    fn test_move_left() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.index = 5;
+        scopes.move_left(1);
+        assert_eq!(scopes.get_index(), 4);
+    }
+
+    #[test]
+    fn test_move_right_overflow() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.index = 29999;
+        scopes.move_right(5);
+        assert_eq!(scopes.get_index(), 4);
+    }
+
+    #[test]
+    fn test_move_left_overflow() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.index = 5;
+        scopes.move_left(10);
+        assert_eq!(scopes.get_index(), 29995);
+    }
+
+    #[test]
+    fn test_move_right_scope_if_only_one_scope() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.move_right_scope(1);
+        assert_eq!(scopes.get_scope_index(), 0);
+    }
+
+    #[test]
+    fn test_move_right_scope_if_multiple_scopes() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.push();
+        scopes.move_left_scope(1); // Because .push() add 1 to the scope index
+
+        scopes.move_right_scope(1);
+        assert_eq!(scopes.get_scope_index(), 1);
+    }
+
+    #[test]
+    fn test_move_right_scope_if_multiple_scopes_overflow() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.push();
+        scopes.move_left_scope(1); // Because .push() add 1 to the scope index
+
+        scopes.move_right_scope(2);
+        assert_eq!(scopes.get_scope_index(), 1);
+    }
+
+    #[test]
+    fn test_move_left_scope_if_at_first_scope() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.move_left_scope(1);
+        assert_eq!(scopes.get_scope_index(), 0);
+    }
+
+    #[test]
+    fn test_move_left_scope_if_multiple_scopes() {
+        let mut scopes = Scopes::<Instruction>::new();
+
+        scopes.push();
+        scopes.move_left_scope(1); // Because .push() add 1 to the scope index
+
+        scopes.move_left_scope(8);
+        assert_eq!(scopes.get_scope_index(), 0);
     }
 }
