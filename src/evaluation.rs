@@ -1,5 +1,8 @@
-pub mod evaluator;
-pub mod scope;
+mod evaluator;
+mod scope;
+mod cell;
 
 pub use evaluator::Evaluator;
-pub use scope::Scope;
+
+use cell::Cell;
+use scope::Scopes;

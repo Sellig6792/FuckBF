@@ -1,4 +1,4 @@
-use crate::ast::instructions::{Instruction, InstructionType};
+use crate::ast::instructions::{Instruction, InstructionType, InstructionTrait};
 
 use crate::optimization::optimized_instructions::OptimizedInstruction;
 
@@ -18,29 +18,34 @@ impl Optimizer {
         optimized_instructions
     }
 
-    fn optimize_container(&self, container: Instruction) -> OptimizedInstruction {
-        let optimized_instructions = Optimizer::new(container.get_content()).optimize();
-        let mut optimized_container = OptimizedInstruction::from(container, Some(optimized_instructions));
-
-        optimized_container
+    fn optimize_container(&self, content: Vec<Instruction>) -> Vec<OptimizedInstruction> {
+        let mut optimizer = Optimizer::new(content);
+        optimizer.optimize()
     }
 
     fn merge_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) -> () {
         for instruction in self.instructions.iter() {
             match optimized_instructions.last_mut() {
                 Some(last_optimized_instruction) => {
-                    if last_optimized_instruction.instruction.instruction_type
-                        == instruction.instruction_type
+                    if last_optimized_instruction.get_instruction_type()
+                        == instruction.get_instruction_type()
                     {
                         last_optimized_instruction.add(1);
                     } else {
-                        match instruction.instruction_type {
+                        match instruction.get_instruction_type() {
                             InstructionType::Function | InstructionType::Loop => {
-                                optimized_instructions.push(self.optimize_container(instruction.clone()));
+                                optimized_instructions.push(
+                                    OptimizedInstruction::new(
+                                        instruction.get_instruction_type(),
+                                        Some(self.optimize_container(
+                                            instruction.get_content().clone(),
+                                        )),
+                                    ),
+                                );
                             }
                             _ => {
-                                optimized_instructions.push(OptimizedInstruction::from(
-                                    instruction.clone(),
+                                optimized_instructions.push(OptimizedInstruction::new(
+                                    instruction.get_instruction_type(),
                                     None,
                                 ));
                             }
@@ -49,9 +54,17 @@ impl Optimizer {
                 }
                 None => match instruction.instruction_type {
                     InstructionType::Function | InstructionType::Loop => {
-                        optimized_instructions.push(self.optimize_container(instruction.clone()));
+                        optimized_instructions.push(
+                            OptimizedInstruction::new(
+                                instruction.get_instruction_type(),
+                                Some(self.optimize_container(instruction.get_content().clone())),
+                            ),
+                        );
                     }
-                    _ => optimized_instructions.push(OptimizedInstruction::from(instruction.clone(), None)),
+                    _ => optimized_instructions.push(OptimizedInstruction::new(
+                        instruction.get_instruction_type(),
+                        None,
+                    )),
 
                 },
             }
@@ -68,7 +81,7 @@ impl Optimizer {
                 Some(last_optimized_instruction) => {
                     if last_optimized_instruction.is_opposed(optimized_instruction) {
                         last_optimized_instruction.sub(optimized_instruction.get_amount());
-                    } else if last_optimized_instruction.instruction.instruction_type == optimized_instruction.instruction.instruction_type {
+                    } else if last_optimized_instruction.get_instruction_type() == optimized_instruction.get_instruction_type() {
                         last_optimized_instruction.add(optimized_instruction.get_amount())
                     } else {
                         new_optimized_instructions.push(optimized_instruction.clone());

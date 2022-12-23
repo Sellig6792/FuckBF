@@ -1,14 +1,16 @@
 use rand::Rng;
 
-use crate::ast::instructions::{Instruction, InstructionType};
-use crate::optimization::optimized_instructions::OptimizedInstruction;
+use crate::ast::instructions::{InstructionTrait, InstructionType};
 
-use crate::evaluation::Scope;
+use crate::evaluation::{Cell, Scopes};
 
-pub struct Evaluator {
-    program: Vec<Instruction>,
+pub struct Evaluator<T: InstructionTrait<T>>
+    where
+        T: Clone,
+{
+    program: Vec<T>,
 
-    scopes: Vec<Scope>,
+    scopes: Scopes<T>,
     scope_pointer: usize,
 
     memory_pointer: usize,
@@ -16,12 +18,15 @@ pub struct Evaluator {
     output_buffer: Vec<u8>,
 }
 
-impl Evaluator {
-    pub fn new(instructions: Vec<Instruction>) -> Evaluator {
+impl<T: InstructionTrait<T> + 'static> Evaluator<T>
+    where
+        T: Clone,
+{
+    pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
             program: instructions,
 
-            scopes: vec![Scope::new()],
+            scopes: Scopes::new(),
 
             scope_pointer: 0,
 
@@ -32,46 +37,26 @@ impl Evaluator {
         }
     }
 
-    pub fn evaluate(
-        &mut self,
-        container_to_execute: Option<Instruction>,
-        show_output: Option<bool>,
-    ) {
+    pub fn evaluate(&mut self, container_to_execute: Option<T>, show_output: Option<bool>) {
         let instructions = match container_to_execute {
             Some(container) => container.get_content(),
             None => self.program.clone(),
         };
 
         for instruction in instructions.iter() {
-            match &instruction.instruction_type {
+            match &instruction.get_instruction_type() {
                 InstructionType::Increment => {
-                    if self.scopes[self.scope_pointer].memory[self.memory_pointer] == 255 {
-                        self.scopes[self.scope_pointer].memory[self.memory_pointer] = 0;
-                    } else {
-                        self.scopes[self.scope_pointer].memory[self.memory_pointer] += 1;
-                    }
+                    self.scopes.get_current_cell_mut().add(instruction.get_amount());
                 }
                 InstructionType::Decrement => {
-                    if self.scopes[self.scope_pointer].memory[self.memory_pointer] == 0 {
-                        self.scopes[self.scope_pointer].memory[self.memory_pointer] = 255;
-                    } else {
-                        self.scopes[self.scope_pointer].memory[self.memory_pointer] -= 1;
-                    }
+                    self.scopes.get_current_cell_mut().sub(instruction.get_amount());
                 }
 
                 InstructionType::MoveLeft => {
-                    if self.memory_pointer == 0 {
-                        self.memory_pointer = 29999;
-                    } else {
-                        self.memory_pointer -= 1;
-                    }
+                    self.scopes.move_left(instruction.get_amount() as usize);
                 }
                 InstructionType::MoveRight => {
-                    if self.memory_pointer == 29999 {
-                        self.memory_pointer = 0;
-                    } else {
-                        self.memory_pointer += 1;
-                    }
+                    self.scopes.move_right(instruction.get_amount() as usize);
                 }
 
                 InstructionType::Input => {
@@ -81,46 +66,38 @@ impl Evaluator {
                         // Convert the input to a vector of u8
                         self.input = input.trim().bytes().collect();
                     }
-                    self.scopes[self.scope_pointer].memory[self.memory_pointer] =
-                        self.input.remove(0);
+                    self.scopes.get_current_cell_mut().set_value(self.input.remove(0));
                 }
                 InstructionType::Output => {
-                    self.output_buffer
-                        .push(self.scopes[self.scope_pointer].memory[self.memory_pointer]);
+                    self.output_buffer.push(self.scopes.get_current_cell().get_value());
                 }
 
                 InstructionType::Loop => {
-                    while self.scopes[self.scope_pointer].memory[self.memory_pointer] != 0 {
+                    while *self.scopes.get_current_cell() != 0 {
                         self.evaluate(Some(instruction.clone()), Some(false))
                     }
                 }
                 InstructionType::Function => {
-                    self.scopes[self.scope_pointer].function_memory[self.memory_pointer] =
-                        Instruction::new(
-                            InstructionType::Function,
-                            Some(instruction.get_content()),
-                        );
+                    *self.scopes.get_current_function_mut() =
+                        T::new(InstructionType::Function, Some(instruction.get_content()));
                 }
 
                 InstructionType::CallFunction => {
-                    self.scopes.push(Scope::new());
-                    self.scope_pointer += 1;
+                    self.scopes.push();
                     self.evaluate(
                         Some(
-                            self.scopes[self.scope_pointer - 1].function_memory
-                                [self.memory_pointer]
+                            self.scopes
+                                .get_scope_at(self.scopes.get_scope_index() - 1).unwrap()
+                                .get_function(self.scopes.get_index())
                                 .clone(),
                         ),
                         Some(false),
                     );
                     self.scopes.pop();
-                    self.scope_pointer -= 1;
                 }
 
                 InstructionType::MoveLeftScope => {
-                    if self.scope_pointer != 0 {
-                        self.scope_pointer -= 1;
-                    }
+                    self.scopes.move_left_scope(instruction.get_amount() as usize);
                 }
                 InstructionType::MoveRightScope => {
                     if self.scope_pointer != self.scopes.len() - 1 {
@@ -135,24 +112,24 @@ impl Evaluator {
                     If the left cell's value is greater than the right cell's value,
                     generate a random number between the left cell's value and 255 and the right cell's value and 0
                      */
-                    let left = self.scopes[self.scope_pointer].memory[self.memory_pointer - 1];
-                    let right = self.scopes[self.scope_pointer].memory[self.memory_pointer + 1];
+                    let left: &Cell =
+                        self.scopes.get_cell_at(self.scopes.get_index() - 1).unwrap();
+                    let right: &Cell =
+                        self.scopes.get_cell_at(self.scopes.get_index() + 1).unwrap();
 
                     if right > left {
-                        let r = rand::thread_rng().gen_range(left..=right);
-                        self.scopes[self.scope_pointer].memory[self.memory_pointer] = r;
+                        let r = rand::thread_rng().gen_range(left.get_value()..=right.get_value());
+                        self.scopes.get_current_cell_mut().set_value(r);
                     } else {
-                        let left_to_255 = rand::thread_rng().gen_range(left..=255);
-                        let _0_to_right = rand::thread_rng().gen_range(0..=right);
+                        let left_to_255: u8 = rand::thread_rng().gen_range(left.get_value()..=255);
+                        let _0_to_right: u8 = rand::thread_rng().gen_range(0..=right.get_value());
 
-                        let left_to_255_or_right_to_0 = rand::thread_rng().gen_range(0..=1);
+                        let left_to_255_or_right_to_0: u8 = rand::thread_rng().gen_range(0..=1);
 
                         if left_to_255_or_right_to_0 == 0 {
-                            self.scopes[self.scope_pointer].memory[self.memory_pointer] =
-                                left_to_255;
+                            self.scopes.get_current_cell_mut().set_value(left_to_255);
                         } else {
-                            self.scopes[self.scope_pointer].memory[self.memory_pointer] =
-                                _0_to_right;
+                            self.scopes.get_current_cell_mut().set_value(_0_to_right);
                         }
                     }
                 }
@@ -164,16 +141,5 @@ impl Evaluator {
             _ => (),
         }
     }
-}
-
-struct OptimizedEvaluator {
-    program: Vec<OptimizedInstruction>,
-
-    scopes: Vec<Scope>,
-    scope_pointer: usize,
-
-    memory_pointer: usize,
-    input: Vec<u8>,
-    output_buffer: Vec<u8>,
 }
 
