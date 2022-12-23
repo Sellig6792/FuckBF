@@ -73,12 +73,7 @@ where
     pub fn move_right(&mut self, amount: usize) {
         let sum: usize = self.index + amount;
 
-        self.index = if sum > 29999 {
-            sum - 30000
-        } else {
-            sum
-        };
-
+        self.index = if sum > 29999 { sum - 30000 } else { sum };
     }
 
     pub fn move_left(&mut self, amount: usize) {
@@ -145,11 +140,10 @@ where
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::ast::instructions::Instruction;
     use super::*;
+    use crate::ast::instructions::Instruction;
 
     #[test]
     fn test_move_right() {
