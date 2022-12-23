@@ -1,6 +1,6 @@
+mod cell;
 mod evaluator;
 mod scope;
-mod cell;
 
 pub use evaluator::Evaluator;
 

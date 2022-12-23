@@ -50,7 +50,10 @@ where
     scope_index: usize,
 }
 
-impl<T> Scopes<T> where T: InstructionTrait<T> {
+impl<T> Scopes<T>
+where
+    T: InstructionTrait<T>,
+{
     pub fn new() -> Scopes<T> {
         Scopes {
             index: 0,
@@ -128,11 +131,7 @@ impl<T> Scopes<T> where T: InstructionTrait<T> {
         // If the index is less than 0, set the index to the first scope
         let sub: isize = self.scope_index as isize - amount as isize;
 
-        self.scope_index = if sub < 0 {
-            0
-        } else {
-            sub as usize
-        };
+        self.scope_index = if sub < 0 { 0 } else { sub as usize };
     }
 
     pub fn get_current_cell(&self) -> &Cell {
@@ -166,7 +165,6 @@ impl<T> Scopes<T> where T: InstructionTrait<T> {
     pub fn get_function_at_mut(&mut self, index: usize) -> Option<&mut T> {
         self.get_current_scope_mut().function_memory.get_mut(index)
     }
-
 
     pub fn push(&mut self) {
         self.scopes.push(Scope::new());

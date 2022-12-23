@@ -1,4 +1,3 @@
-
 mod ast;
 mod evaluation;
 mod optimization;
