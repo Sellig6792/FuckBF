@@ -1,5 +1,4 @@
 use crate::ast::instructions::{Instruction, InstructionTrait, InstructionType};
-use std::ops::Deref;
 
 use crate::optimization::optimized_instructions::OptimizedInstruction;
 

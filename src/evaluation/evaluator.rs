@@ -5,32 +5,26 @@ use crate::ast::instructions::{InstructionTrait, InstructionType};
 use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
-where
-    T: Clone,
+    where
+        T: Clone,
 {
     program: Vec<T>,
 
     scopes: Scopes<T>,
-    scope_pointer: usize,
 
-    memory_pointer: usize,
     input: Vec<u8>,
     output_buffer: Vec<u8>,
 }
 
 impl<T: InstructionTrait<T> + 'static> Evaluator<T>
-where
-    T: Clone,
+    where
+        T: Clone,
 {
     pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
             program: instructions,
 
             scopes: Scopes::new(),
-
-            scope_pointer: 0,
-
-            memory_pointer: 0,
 
             input: vec![],
             output_buffer: vec![],
@@ -105,13 +99,10 @@ where
                 }
 
                 InstructionType::MoveLeftScope => {
-                    self.scopes
-                        .move_left_scope(instruction.get_amount() as usize);
+                    self.scopes.move_left_scope(instruction.get_amount() as usize);
                 }
                 InstructionType::MoveRightScope => {
-                    if self.scope_pointer != self.scopes.len() - 1 {
-                        self.scope_pointer += 1;
-                    }
+                    self.scopes.move_right_scope(instruction.get_amount() as usize);
                 }
 
                 InstructionType::Random => {
