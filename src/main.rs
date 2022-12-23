@@ -1,3 +1,4 @@
+
 mod ast;
 mod evaluation;
 mod optimization;
@@ -35,6 +36,6 @@ fn main() {
     let optimized_instructions = optimizer.optimize();
 
     // Run the program
-    let mut brainfuck = Evaluator::new(instructions.clone());
+    let mut brainfuck = Evaluator::new(optimized_instructions);
     brainfuck.evaluate(None, None);
 }

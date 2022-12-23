@@ -1,4 +1,3 @@
-use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum InstructionType {
@@ -22,30 +21,16 @@ pub enum InstructionType {
     Random,
 }
 
-impl fmt::Display for InstructionType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            InstructionType::Increment => write!(f, "Increment"),
-            InstructionType::Decrement => write!(f, "Decrement"),
 
-            InstructionType::MoveLeft => write!(f, "MoveLeft"),
-            InstructionType::MoveRight => write!(f, "MoveRight"),
-
-            InstructionType::Input => write!(f, "Input"),
-            InstructionType::Output => write!(f, "Output"),
-
-            InstructionType::Loop => write!(f, "Loop"),
-
-            InstructionType::Function => write!(f, "Function"),
-            InstructionType::CallFunction => write!(f, "CallFunction"),
-
-            InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
-            InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
-
-            InstructionType::Random => write!(f, "Random"),
-        }
-    }
+pub trait InstructionTrait<T> {
+    fn new(instruction_type: InstructionType, content: Option<Vec<T>>) -> Self;
+    fn get_instruction_type(&self) -> InstructionType;
+    fn get_content(&self) -> Vec<T>;
+    fn get_content_ref(&self) -> &Vec<T>;
+    fn get_content_mut(&mut self) -> &mut Vec<T>;
+    fn get_amount(&self) -> u32;
 }
+
 #[derive(Clone)]
 pub struct Instruction {
     pub instruction_type: InstructionType,
@@ -60,47 +45,38 @@ impl Instruction {
             content,
         }
     }
-    pub fn get_content(&self) -> Vec<Instruction> {
+}
+
+impl InstructionTrait<Instruction> for Instruction {
+    fn new(instruction_type: InstructionType, content: Option<Vec<Instruction>>) -> Instruction {
+        Instruction {
+            instruction_type,
+            content,
+        }
+    }
+    fn get_instruction_type(&self) -> InstructionType {
+        self.instruction_type.clone()
+    }
+
+    fn get_content(&self) -> Vec<Instruction> {
         match &self.content {
             Some(content) => content.clone(),
             None => panic!("Instruction has no content"),
         }
     }
-    pub fn get_content_ref(&self) -> &Vec<Instruction> {
+    fn get_content_ref(&self) -> &Vec<Instruction> {
         match &self.content {
             Some(content) => content,
             None => panic!("Instruction has no content"),
         }
     }
-}
-
-impl fmt::Display for Instruction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.instruction_type {
-            InstructionType::Increment => write!(f, "Increment"),
-            InstructionType::Decrement => write!(f, "Decrement"),
-
-            InstructionType::MoveLeft => write!(f, "MoveLeft"),
-            InstructionType::MoveRight => write!(f, "MoveRight"),
-
-            InstructionType::Input => write!(f, "Input"),
-            InstructionType::Output => write!(f, "Output"),
-
-            InstructionType::Loop => write!(f, "Loop{:?}", self.get_content_ref()),
-
-            InstructionType::Function => write!(f, "Function{:?}", self.get_content_ref()),
-            InstructionType::CallFunction => write!(f, "CallFunction"),
-
-            InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
-            InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
-
-            InstructionType::Random => write!(f, "Random"),
+    fn get_content_mut(&mut self) -> &mut Vec<Instruction> {
+        match &mut self.content {
+            Some(content) => content,
+            None => panic!("Instruction has no content"),
         }
     }
-}
-
-impl fmt::Debug for Instruction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self)
+    fn get_amount(&self) -> u32 {
+        1
     }
 }

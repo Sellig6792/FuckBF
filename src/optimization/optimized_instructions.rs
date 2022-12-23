@@ -1,36 +1,18 @@
-use std::fmt;
-
-use crate::ast::instructions::{Instruction, InstructionType};
+use crate::ast::instructions::{InstructionType, InstructionTrait};
 
 #[derive(Clone)]
 pub struct OptimizedInstruction {
-    pub instruction: Instruction,
+    pub instruction_type: InstructionType,
     content: Option<Vec<OptimizedInstruction>>,
     pub amount: u32,
 }
 
-impl OptimizedInstruction {
-    pub fn from(
-        instruction: Instruction,
-        content: Option<Vec<OptimizedInstruction>>,
-    ) -> OptimizedInstruction {
+impl OptimizedInstruction{
+    pub fn new(instruction_type: InstructionType, content: Option<Vec<OptimizedInstruction>>) -> OptimizedInstruction {
         OptimizedInstruction {
-            instruction,
+            instruction_type,
             content,
             amount: 1,
-        }
-    }
-
-    pub fn get_content(&self) -> Vec<OptimizedInstruction> {
-        match &self.content {
-            Some(content) => content.clone(),
-            None => vec![],
-        }
-    }
-    pub fn get_content_ref(&self) -> &Vec<OptimizedInstruction> {
-        match &self.content {
-            Some(content) => content,
-            None => panic!("Instruction has no content"),
         }
     }
 
@@ -42,44 +24,40 @@ impl OptimizedInstruction {
         self.amount -= amount
     }
 
-    pub fn get_amount(&self) -> u32 {
-        self.amount
-    }
-
     pub fn is_opposed(&self, other: &OptimizedInstruction) -> bool {
-        match self.instruction.instruction_type {
+        match self.get_instruction_type() {
             InstructionType::Increment => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::Decrement => true,
                     _ => false,
                 }
             }
             InstructionType::Decrement => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::Increment => true,
                     _ => false,
                 }
             }
             InstructionType::MoveLeft => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::MoveRight => true,
                     _ => false,
                 }
             }
             InstructionType::MoveRight => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::MoveLeft => true,
                     _ => false,
                 }
             }
             InstructionType::MoveLeftScope => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::MoveRightScope => true,
                     _ => false,
                 }
             }
             InstructionType::MoveRightScope => {
-                match other.instruction.instruction_type {
+                match other.get_instruction_type() {
                     InstructionType::MoveLeftScope => true,
                     _ => false,
                 }
@@ -90,27 +68,38 @@ impl OptimizedInstruction {
     }
 }
 
-impl fmt::Debug for OptimizedInstruction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.instruction.instruction_type {
-            InstructionType::Increment => write!(f, "Increment({})", self.amount),
-            InstructionType::Decrement => write!(f, "Decrement({})", self.amount),
-
-            InstructionType::MoveLeft => write!(f, "MoveLeft({})", self.amount),
-            InstructionType::MoveRight => write!(f, "MoveRight({})", self.amount),
-
-            InstructionType::Input => write!(f, "Input"),
-            InstructionType::Output => write!(f, "Output"),
-
-            InstructionType::Loop => write!(f, "Loop{:?}", self.get_content_ref()),
-
-            InstructionType::Function => write!(f, "Function{:?}", self.get_content_ref()),
-            InstructionType::CallFunction => write!(f, "CallFunction"),
-
-            InstructionType::MoveLeftScope => write!(f, "MoveLeftScope"),
-            InstructionType::MoveRightScope => write!(f, "MoveRightScope"),
-
-            InstructionType::Random => write!(f, "Random"),
+impl InstructionTrait<OptimizedInstruction> for OptimizedInstruction {
+    fn new(instruction_type: InstructionType, content: Option<Vec<OptimizedInstruction>>) -> OptimizedInstruction {
+        OptimizedInstruction {
+            instruction_type,
+            content,
+            amount: 1,
         }
+    }
+    fn get_instruction_type(&self) -> InstructionType {
+        self.instruction_type.clone()
+    }
+
+    fn get_content(&self) -> Vec<OptimizedInstruction> {
+        match &self.content {
+            Some(content) => content.clone(),
+            None => panic!("Instruction has no content"),
+        }
+    }
+    fn get_content_ref(&self) -> &Vec<OptimizedInstruction> {
+        match &self.content {
+            Some(content) => content,
+            None => panic!("Instruction has no content"),
+        }
+    }
+    fn get_content_mut(&mut self) -> &mut Vec<OptimizedInstruction> {
+        match &mut self.content {
+            Some(content) => content,
+            None => panic!("Instruction has no content"),
+        }
+    }
+
+    fn get_amount(&self) -> u32 {
+        self.amount
     }
 }
