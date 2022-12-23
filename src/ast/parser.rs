@@ -45,13 +45,19 @@ impl Parser {
 
                 '[' => {
                     let (loop_instructions, new_index) = self._parse(Some(index + 1), Some(']'));
-                    instructions.push(Instruction::new(InstructionType::Loop, Some(loop_instructions)));
+                    instructions.push(Instruction::new(
+                        InstructionType::Loop,
+                        Some(loop_instructions),
+                    ));
                     index = new_index;
                 }
                 '{' => {
                     let (function_instructions, new_index) =
                         self._parse(Some(index + 1), Some('}'));
-                    instructions.push(Instruction::new(InstructionType::Function, Some(function_instructions)));
+                    instructions.push(Instruction::new(
+                        InstructionType::Function,
+                        Some(function_instructions),
+                    ));
                     index = new_index;
                 }
 

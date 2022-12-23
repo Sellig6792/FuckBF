@@ -5,8 +5,8 @@ use crate::ast::instructions::{InstructionTrait, InstructionType};
 use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     program: Vec<T>,
 
@@ -19,8 +19,8 @@ pub struct Evaluator<T: InstructionTrait<T>>
 }
 
 impl<T: InstructionTrait<T> + 'static> Evaluator<T>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
@@ -46,10 +46,14 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
         for instruction in instructions.iter() {
             match &instruction.get_instruction_type() {
                 InstructionType::Increment => {
-                    self.scopes.get_current_cell_mut().add(instruction.get_amount());
+                    self.scopes
+                        .get_current_cell_mut()
+                        .add(instruction.get_amount());
                 }
                 InstructionType::Decrement => {
-                    self.scopes.get_current_cell_mut().sub(instruction.get_amount());
+                    self.scopes
+                        .get_current_cell_mut()
+                        .sub(instruction.get_amount());
                 }
 
                 InstructionType::MoveLeft => {
@@ -66,10 +70,13 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                         // Convert the input to a vector of u8
                         self.input = input.trim().bytes().collect();
                     }
-                    self.scopes.get_current_cell_mut().set_value(self.input.remove(0));
+                    self.scopes
+                        .get_current_cell_mut()
+                        .set_value(self.input.remove(0));
                 }
                 InstructionType::Output => {
-                    self.output_buffer.push(self.scopes.get_current_cell().get_value());
+                    self.output_buffer
+                        .push(self.scopes.get_current_cell().get_value());
                 }
 
                 InstructionType::Loop => {
@@ -87,7 +94,8 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                     self.evaluate(
                         Some(
                             self.scopes
-                                .get_scope_at(self.scopes.get_scope_index() - 1).unwrap()
+                                .get_scope_at(self.scopes.get_scope_index() - 1)
+                                .unwrap()
                                 .get_function(self.scopes.get_index())
                                 .clone(),
                         ),
@@ -97,7 +105,8 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                 }
 
                 InstructionType::MoveLeftScope => {
-                    self.scopes.move_left_scope(instruction.get_amount() as usize);
+                    self.scopes
+                        .move_left_scope(instruction.get_amount() as usize);
                 }
                 InstructionType::MoveRightScope => {
                     if self.scope_pointer != self.scopes.len() - 1 {
@@ -112,10 +121,14 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                     If the left cell's value is greater than the right cell's value,
                     generate a random number between the left cell's value and 255 and the right cell's value and 0
                      */
-                    let left: &Cell =
-                        self.scopes.get_cell_at(self.scopes.get_index() - 1).unwrap();
-                    let right: &Cell =
-                        self.scopes.get_cell_at(self.scopes.get_index() + 1).unwrap();
+                    let left: &Cell = self
+                        .scopes
+                        .get_cell_at(self.scopes.get_index() - 1)
+                        .unwrap();
+                    let right: &Cell = self
+                        .scopes
+                        .get_cell_at(self.scopes.get_index() + 1)
+                        .unwrap();
 
                     if right > left {
                         let r = rand::thread_rng().gen_range(left.get_value()..=right.get_value());
@@ -142,4 +155,3 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
         }
     }
 }
-

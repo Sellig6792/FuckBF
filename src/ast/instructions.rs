@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum InstructionType {
     Increment,
@@ -21,7 +20,6 @@ pub enum InstructionType {
     Random,
 }
 
-
 pub trait InstructionTrait<T> {
     fn new(instruction_type: InstructionType, content: Option<Vec<T>>) -> Self;
     fn get_instruction_type(&self) -> InstructionType;
@@ -37,9 +35,11 @@ pub struct Instruction {
     content: Option<Vec<Instruction>>,
 }
 
-
 impl Instruction {
-    pub fn new(instruction_type: InstructionType, content: Option<Vec<Instruction>>) -> Instruction {
+    pub fn new(
+        instruction_type: InstructionType,
+        content: Option<Vec<Instruction>>,
+    ) -> Instruction {
         Instruction {
             instruction_type,
             content,

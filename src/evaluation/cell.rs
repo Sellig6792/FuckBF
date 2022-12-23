@@ -41,7 +41,6 @@ impl PartialEq<u8> for Cell {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

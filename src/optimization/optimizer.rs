@@ -1,4 +1,5 @@
-use crate::ast::instructions::{Instruction, InstructionType, InstructionTrait};
+use crate::ast::instructions::{Instruction, InstructionTrait, InstructionType};
+use std::ops::Deref;
 
 use crate::optimization::optimized_instructions::OptimizedInstruction;
 
@@ -34,14 +35,12 @@ impl Optimizer {
                     } else {
                         match instruction.get_instruction_type() {
                             InstructionType::Function | InstructionType::Loop => {
-                                optimized_instructions.push(
-                                    OptimizedInstruction::new(
-                                        instruction.get_instruction_type(),
-                                        Some(self.optimize_container(
-                                            instruction.get_content().clone(),
-                                        )),
+                                optimized_instructions.push(OptimizedInstruction::new(
+                                    instruction.get_instruction_type(),
+                                    Some(
+                                        self.optimize_container(instruction.get_content().clone()),
                                     ),
-                                );
+                                ));
                             }
                             _ => {
                                 optimized_instructions.push(OptimizedInstruction::new(
@@ -54,41 +53,67 @@ impl Optimizer {
                 }
                 None => match instruction.instruction_type {
                     InstructionType::Function | InstructionType::Loop => {
-                        optimized_instructions.push(
-                            OptimizedInstruction::new(
-                                instruction.get_instruction_type(),
-                                Some(self.optimize_container(instruction.get_content().clone())),
-                            ),
-                        );
+                        optimized_instructions.push(OptimizedInstruction::new(
+                            instruction.get_instruction_type(),
+                            Some(self.optimize_container(instruction.get_content().clone())),
+                        ));
                     }
                     _ => optimized_instructions.push(OptimizedInstruction::new(
                         instruction.get_instruction_type(),
                         None,
                     )),
-
                 },
             }
         }
     }
 
-    fn cancel_opposed_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) -> () {
+    fn cancel_opposed_instructions(
+        &self,
+        optimized_instructions: &mut Vec<OptimizedInstruction>,
+    ) -> () {
         let mut new_optimized_instructions: Vec<OptimizedInstruction> = vec![];
 
         for optimized_instruction in optimized_instructions.iter() {
-            let last_optimized_instruction = new_optimized_instructions.last_mut();
-
-            match last_optimized_instruction {
+            match new_optimized_instructions.last().clone() {
                 Some(last_optimized_instruction) => {
                     if last_optimized_instruction.is_opposed(optimized_instruction) {
-                        last_optimized_instruction.sub(optimized_instruction.get_amount());
-                    } else if last_optimized_instruction.get_instruction_type() == optimized_instruction.get_instruction_type() {
-                        last_optimized_instruction.add(optimized_instruction.get_amount())
+                        let last_amount = last_optimized_instruction.get_amount();
+                        let current_amount = optimized_instruction.get_amount();
+
+                        if last_amount > current_amount {
+                            new_optimized_instructions
+                                .last_mut()
+                                .expect("Error while getting last optimized instruction")
+                                .sub(current_amount);
+                        } else if last_amount < current_amount {
+                            new_optimized_instructions.pop();
+                            new_optimized_instructions.push(OptimizedInstruction::new(
+                                optimized_instruction.get_instruction_type(),
+                                None,
+                            ));
+                            new_optimized_instructions
+                                .last_mut()
+                                .expect("Error while getting last optimized instruction")
+                                .set_amount(current_amount - last_amount);
+                        } else {
+                            new_optimized_instructions.pop();
+                        }
+                    } else if last_optimized_instruction.get_instruction_type()
+                        == optimized_instruction.get_instruction_type()
+                    {
+                        // If the current instruction is the same as the last one, we add the amount of the current instruction to the last one
+                        new_optimized_instructions
+                            .last_mut()
+                            .expect(
+                                "Error while getting last element of new_optimized_instructions",
+                            )
+                            .add(optimized_instruction.amount);
                     } else {
                         new_optimized_instructions.push(optimized_instruction.clone());
                     }
-                },
+                }
 
-                None => new_optimized_instructions.push(optimized_instruction.clone())
+                None => new_optimized_instructions.push(optimized_instruction.clone()),
             }
         }
 

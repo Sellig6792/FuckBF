@@ -1,4 +1,4 @@
-use crate::ast::instructions::{InstructionType, InstructionTrait};
+use crate::ast::instructions::{InstructionTrait, InstructionType};
 
 #[derive(Clone)]
 pub struct OptimizedInstruction {
@@ -7,8 +7,11 @@ pub struct OptimizedInstruction {
     pub amount: u32,
 }
 
-impl OptimizedInstruction{
-    pub fn new(instruction_type: InstructionType, content: Option<Vec<OptimizedInstruction>>) -> OptimizedInstruction {
+impl OptimizedInstruction {
+    pub fn new(
+        instruction_type: InstructionType,
+        content: Option<Vec<OptimizedInstruction>>,
+    ) -> OptimizedInstruction {
         OptimizedInstruction {
             instruction_type,
             content,
@@ -24,52 +27,47 @@ impl OptimizedInstruction{
         self.amount -= amount
     }
 
+    pub fn set_amount(&mut self, amount: u32) {
+        self.amount = amount
+    }
+
     pub fn is_opposed(&self, other: &OptimizedInstruction) -> bool {
         match self.get_instruction_type() {
-            InstructionType::Increment => {
-                match other.get_instruction_type() {
-                    InstructionType::Decrement => true,
-                    _ => false,
-                }
-            }
-            InstructionType::Decrement => {
-                match other.get_instruction_type() {
-                    InstructionType::Increment => true,
-                    _ => false,
-                }
-            }
-            InstructionType::MoveLeft => {
-                match other.get_instruction_type() {
-                    InstructionType::MoveRight => true,
-                    _ => false,
-                }
-            }
-            InstructionType::MoveRight => {
-                match other.get_instruction_type() {
-                    InstructionType::MoveLeft => true,
-                    _ => false,
-                }
-            }
-            InstructionType::MoveLeftScope => {
-                match other.get_instruction_type() {
-                    InstructionType::MoveRightScope => true,
-                    _ => false,
-                }
-            }
-            InstructionType::MoveRightScope => {
-                match other.get_instruction_type() {
-                    InstructionType::MoveLeftScope => true,
-                    _ => false,
-                }
-            }
+            InstructionType::Increment => match other.get_instruction_type() {
+                InstructionType::Decrement => true,
+                _ => false,
+            },
+            InstructionType::Decrement => match other.get_instruction_type() {
+                InstructionType::Increment => true,
+                _ => false,
+            },
+            InstructionType::MoveLeft => match other.get_instruction_type() {
+                InstructionType::MoveRight => true,
+                _ => false,
+            },
+            InstructionType::MoveRight => match other.get_instruction_type() {
+                InstructionType::MoveLeft => true,
+                _ => false,
+            },
+            InstructionType::MoveLeftScope => match other.get_instruction_type() {
+                InstructionType::MoveRightScope => true,
+                _ => false,
+            },
+            InstructionType::MoveRightScope => match other.get_instruction_type() {
+                InstructionType::MoveLeftScope => true,
+                _ => false,
+            },
 
-            _ => false
+            _ => false,
         }
     }
 }
 
 impl InstructionTrait<OptimizedInstruction> for OptimizedInstruction {
-    fn new(instruction_type: InstructionType, content: Option<Vec<OptimizedInstruction>>) -> OptimizedInstruction {
+    fn new(
+        instruction_type: InstructionType,
+        content: Option<Vec<OptimizedInstruction>>,
+    ) -> OptimizedInstruction {
         OptimizedInstruction {
             instruction_type,
             content,
@@ -101,5 +99,14 @@ impl InstructionTrait<OptimizedInstruction> for OptimizedInstruction {
 
     fn get_amount(&self) -> u32 {
         self.amount
+    }
+}
+
+impl std::fmt::Debug for OptimizedInstruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match &self.amount {
+            1 => write!(f, "{:?}", self.instruction_type),
+            _ => write!(f, "{:?}({})", self.instruction_type, self.amount),
+        }
     }
 }
