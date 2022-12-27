@@ -41,7 +41,10 @@ where
         // Remove the instructions that were replaced
         for instruction in &mut instructions {
             if self.match_pattern(&vec![instruction.clone()]) {
-                let new_instruction = T::new(InstructionType::Pattern(PatternType::SetToZero(SetToZero {})), None);
+                let new_instruction = T::new(
+                    InstructionType::Pattern(PatternType::SetToZero(SetToZero {})),
+                    None,
+                );
                 *instruction = new_instruction;
             }
         }
