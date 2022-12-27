@@ -1,6 +1,6 @@
 use crate::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
 
-use crate::optimization::optimized_instructions::OptimizedInstruction;
+use crate::optimization::OptimizedInstruction;
 
 pub struct Optimizer {
     instructions: Vec<Instruction>,
