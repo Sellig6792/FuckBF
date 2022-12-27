@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::ast::{InstructionTrait, InstructionType};
+use crate::ast::{InstructionTrait, InstructionType, PatternType};
 
 use crate::evaluation::{Cell, Scopes};
 
@@ -141,6 +141,12 @@ where
                         }
                     }
                 }
+
+                InstructionType::Pattern(pattern_type) => match pattern_type {
+                    PatternType::SetToZero(_) => {
+                        self.scopes.get_current_cell_mut().set_value(0);
+                    }
+                },
             }
         }
 
@@ -182,9 +188,6 @@ mod tests {
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
-        assert_eq!(
-            String::from_utf8(brainfuck.output_buffer).unwrap(),
-            "1"
-        );
+        assert_eq!(String::from_utf8(brainfuck.output_buffer).unwrap(), "1");
     }
 }

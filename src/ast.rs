@@ -1,7 +1,9 @@
+mod instruction_types;
 mod instructions;
 mod parser;
-mod instruction_types;
+mod patterns;
 
-pub use parser::Parser;
-pub use instructions::{InstructionTrait, Instruction};
 pub use instruction_types::InstructionType;
+pub use instructions::{Instruction, InstructionTrait};
+pub use parser::Parser;
+pub use patterns::{Pattern, PatternType};
