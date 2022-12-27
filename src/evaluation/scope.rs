@@ -17,7 +17,7 @@ impl<T: InstructionTrait<T>> Scope<T> {
 
         Scope {
             memory: Box::new([Cell::new(0); 30000]),
-            function_memory: match function_memory_vec.try_into() {
+            function_memory: match function_memory_vec.into_boxed_slice().try_into() {
                 Ok(function_memory) => function_memory,
                 Err(_) => panic!("Could not convert Vec to Box<[T; 30000]>"),
             },
