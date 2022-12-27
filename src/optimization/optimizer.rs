@@ -1,4 +1,4 @@
-use crate::ast::instructions::{Instruction, InstructionTrait, InstructionType};
+use crate::ast::{Instruction, InstructionTrait, InstructionType};
 
 use crate::optimization::optimized_instructions::OptimizedInstruction;
 

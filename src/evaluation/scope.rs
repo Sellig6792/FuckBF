@@ -1,4 +1,4 @@
-use crate::ast::instructions::{InstructionTrait, InstructionType};
+use crate::ast::{InstructionTrait, InstructionType};
 
 use crate::evaluation::Cell;
 
