@@ -1,7 +1,11 @@
 mod set_to_zero;
 
-use crate::ast::{Instruction, InstructionTrait};
+use crate::ast::InstructionTrait;
 use crate::optimization::optimized_instructions::OptimizedInstruction;
+
+pub mod pattern_structs {
+    pub use super::set_to_zero::SetToZero;
+}
 
 pub trait Pattern<T>
 where
@@ -32,5 +36,3 @@ impl PatternType {
         self.get_pattern().replace(instructions)
     }
 }
-
-
