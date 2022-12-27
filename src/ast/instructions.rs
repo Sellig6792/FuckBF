@@ -1,24 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
-pub enum InstructionType {
-    Increment,
-    Decrement,
-
-    MoveLeft,
-    MoveRight,
-
-    Input,
-    Output,
-
-    Loop,
-
-    Function,
-    CallFunction,
-
-    MoveLeftScope,
-    MoveRightScope,
-
-    Random,
-}
+use crate::ast::InstructionType;
 
 pub trait InstructionTrait<T> {
     fn new(instruction_type: InstructionType, content: Option<Vec<T>>) -> Self;
