@@ -77,7 +77,7 @@ where
 
                 InstructionType::Loop => {
                     while *self.scopes.get_current_cell() != 0 {
-                        self.evaluate(Some(instruction.clone()), Some(false))
+                        self.evaluate(Some(instruction.clone()), Some(false));
                     }
                 }
                 InstructionType::Function => {
@@ -86,18 +86,20 @@ where
                 }
 
                 InstructionType::CallFunction => {
-                    self.scopes.push();
-                    self.evaluate(
-                        Some(
-                            self.scopes
-                                .get_scope_at(self.scopes.get_scope_index() - 1)
-                                .unwrap()
-                                .get_function(self.scopes.get_index())
-                                .clone(),
-                        ),
-                        Some(false),
-                    );
-                    self.scopes.pop();
+                    for _ in 0..instruction.get_amount() {
+                        self.scopes.push();
+                        self.evaluate(
+                            Some(
+                                self.scopes
+                                    .get_scope_at(self.scopes.get_scope_index() - 1)
+                                    .unwrap()
+                                    .get_function(self.scopes.get_index())
+                                    .clone(),
+                            ),
+                            Some(false),
+                        );
+                        self.scopes.pop();
+                    }
                 }
 
                 InstructionType::MoveLeftScope => {
@@ -151,7 +153,7 @@ where
         }
 
         match show_output {
-            None => println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap()),
+            None | Some(true) => println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap()),
             _ => (),
         }
     }
@@ -189,5 +191,17 @@ mod tests {
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
         assert_eq!(String::from_utf8(brainfuck.output_buffer).unwrap(), "1");
+    }
+
+    #[test]
+    fn test_call_multiple_time_functions() {
+        let program = String::from("{+++++[>+++++++++++++<-]>.<}==");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let optimized_instructions = optimizer.optimize();
+        let mut brainfuck = Evaluator::new(optimized_instructions);
+        brainfuck.evaluate(None, Some(false));
+        assert_eq!(String::from_utf8(brainfuck.output_buffer).unwrap(), "AA");
     }
 }
