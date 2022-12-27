@@ -1,3 +1,5 @@
+use crate::ast::patterns::PatternType;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InstructionType {
     Increment,
@@ -18,4 +20,6 @@ pub enum InstructionType {
     MoveRightScope,
 
     Random,
+
+    Pattern(PatternType),
 }

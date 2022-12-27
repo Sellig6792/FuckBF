@@ -16,13 +16,17 @@ struct CLI {
     #[arg(required = true, help = "Path to the file to execute")]
     path: std::path::PathBuf,
 
-    #[arg(short = 'O', long = "optimize", help = "Optimize the code", default_value = "false")]
+    #[arg(
+        short = 'O',
+        long = "optimize",
+        help = "Optimize the code",
+        default_value = "false"
+    )]
     optimize: bool,
 }
 
-
-fn main() ->  Result<(), Box<dyn std::error::Error>>{
-    let args= CLI::parse();
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = CLI::parse();
     // Read the file and quit if it's not found
     let program = fs::read_to_string(&args.path)
         .with_context(|| format!("Could not read file `{}`", args.path.to_str().unwrap()))?;

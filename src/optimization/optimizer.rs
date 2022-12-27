@@ -1,4 +1,4 @@
-use crate::ast::{Instruction, InstructionTrait, InstructionType};
+use crate::ast::{Instruction, InstructionTrait, InstructionType, Pattern, PatternType};
 
 use crate::optimization::optimized_instructions::OptimizedInstruction;
 
@@ -15,6 +15,7 @@ impl Optimizer {
         let mut optimized_instructions = vec![];
         self.merge_instructions(&mut optimized_instructions);
         self.cancel_opposed_instructions(&mut optimized_instructions);
+        self.recognize_patterns(&mut optimized_instructions);
         optimized_instructions
     }
 
@@ -38,9 +39,8 @@ impl Optimizer {
                                     Some(self.optimize_container(instruction.get_content())),
                                 ));
                             }
-                            _ => last_optimized_instruction.add(1)
+                            _ => last_optimized_instruction.add(1),
                         }
-
                     } else {
                         match instruction.get_instruction_type() {
                             InstructionType::Function | InstructionType::Loop => {
@@ -124,6 +124,18 @@ impl Optimizer {
 
                 None => new_optimized_instructions.push(optimized_instruction.clone()),
             }
+        }
+
+        *optimized_instructions = new_optimized_instructions;
+    }
+
+    fn recognize_patterns(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) -> () {
+        let mut new_optimized_instructions: Vec<OptimizedInstruction> = optimized_instructions.clone();
+
+        let patterns = PatternType::iter();
+
+        for pattern in patterns {
+            new_optimized_instructions = pattern.replace(optimized_instructions.clone());
         }
 
         *optimized_instructions = new_optimized_instructions;
