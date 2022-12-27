@@ -1,0 +1,9 @@
+# Cargo
+/target
+
+# Test
+test.bf
+test.fbf
+
+# IDEs
+.idea/
