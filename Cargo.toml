@@ -11,7 +11,7 @@ name = "fbf"
 path = "src/main.rs"
 
 [dependencies]
-clap = { version = "4.0.30", features = ["derive"] }
-anyhow = "1.0.51"
+clap = { version = "4.0.32", features = ["derive"] }
+anyhow = "1.0.68"
 rand = "0.8.5"
 num = "0.4.0"
