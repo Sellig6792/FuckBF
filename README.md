@@ -82,7 +82,6 @@ cargo build --release
 fbf [OPTIONS] <FILE>
 ```
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Options
 `-O, --optimize` Optimize the code before executing it
