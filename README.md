@@ -8,7 +8,6 @@
 [![MIT License][license-shield]][license-url]
 
 
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -17,10 +16,9 @@
   </a>
 
   ### FuckBrainfuck
-  [Explore documentation](https://github.com/Sellig6792/FuckBrainfuck/wiki) | [Report Bug](https://github.com/Sellig6792/FuckBrainfuck/issues) | [Request Feature](https://Sellig6792/FuckBrainfuck/issues)
+  [Explore documentation][wiki] | [Report Bug][issues] | [Request Feature][issues]
 </div>
 <br/>
-
 
 
 <!-- TABLE OF CONTENTS -->
@@ -35,25 +33,22 @@
 7. [Acknowledgements](#acknowledgements)
 
 
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-It all started on the Discord server of Graven, on 26<sup>th</sup> June 2022.
+It all started on Graven's Discord server on June 26, 2022.
 It was a joke that ended up on this shit...
 
 So FuckBrainfuck was born. It is an improvement of the classic BrainFuck, with some new features and new commands.
 
-We have already implemented:
+Already implemented:
 
-- Functions
-- "Safe" comments
-- Scopes for functions
-- Optimization
+- [Functions][wiki-function]
+- ["Safe" comments][wiki-comment]
+- [Scopes for functions][wiki-scope]
+- [Optimization][wiki-optimisation]
 
-
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 ![Rust][rust-shield] ![Cargo][cargo-shield]
@@ -61,12 +56,11 @@ We have already implemented:
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-
 ## Installation
 
 ### 1. Prebuilt binaries
 
-You can download the prebuilt binaries from the [releases page](https://github.com/Sellig6792/FuckBrainfuck/releases).
+You can download the prebuilt binaries from the [releases page][release].
 If your system is not supported, you can [build it yourself](#2-building-from-source).
 
 ### 2. Building from source
@@ -88,6 +82,8 @@ cargo build --release
 fbf [OPTIONS] <FILE>
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ### Options
 `-O, --optimize` Optimize the code before executing it
 
@@ -95,9 +91,7 @@ fbf [OPTIONS] <FILE>
 
 `-h, --help` Prints help information
 
-
-
-[//]: # (<p align="right">&#40;<a href="#top">back to top</a>&#41;</p>)
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- CONTRIBUTING -->
@@ -106,7 +100,7 @@ fbf [OPTIONS] <FILE>
 Contributions are what make the open source community such an amazing place to learn, inspire, and create.
 Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request.
+If you have a suggestion that could make this better, please fork the repo and create a pull request.
 You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
 
@@ -117,15 +111,15 @@ Don't forget to give the project a star! Thanks again!
 5. Push to the Branch: `git push origin feat/AmazingFeature`
 6. Open a Pull Request to the develop branch and explain your changes
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See [the licence](./LICENSE) for more information.
+Distributed under the MIT License. See [the licence](LICENSE) for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 <!-- CONTACT -->
@@ -133,9 +127,7 @@ Distributed under the MIT License. See [the licence](./LICENSE) for more informa
 
 Sellig6792 - [@Sellig6792](https://twitter.com/Sellig6792) - sellig6792@gmail.com
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 <!-- ACKNOWLEDGEMENTS -->
@@ -143,6 +135,7 @@ Sellig6792 - [@Sellig6792](https://twitter.com/Sellig6792) - sellig6792@gmail.co
 
 * [Wikipedia - Brainfuck][wikipedia-brainfuck-url]
 * [Astremy - Brainfuck Course (French)][astremy-brainfuck-pdf]
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
@@ -170,3 +163,14 @@ Sellig6792 - [@Sellig6792](https://twitter.com/Sellig6792) - sellig6792@gmail.co
 [graven-discord-url]: https://discord.gg/graven
 [astremy-brainfuck-pdf]: https://cdn.discordapp.com/attachments/815331771197030441/824402769397940234/brainfuck.pdf
 [wikipedia-brainfuck-url]: https://en.wikipedia.org/wiki/Brainfuck
+
+[wiki]: https://github.com/Sellig6792/FuckBrainfuck/wiki
+
+[wiki-function]: https://github.com/Sellig6792/FuckBrainfuck/wiki#functions
+[wiki-optimisation]: https://github.com/Sellig6792/FuckBrainfuck/wiki#optimisation
+[wiki-scope]: https://github.com/Sellig6792/FuckBrainfuck/wiki#scope
+[wiki-comment]: https://github.com/Sellig6792/FuckBrainfuck/wiki#comments
+
+
+[issues]: https://github.com/Sellig6792/FuckBrainfuck/issues
+[release]: https://github.com/Sellig6792/FuckBrainfuck/releases
