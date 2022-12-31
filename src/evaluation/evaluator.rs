@@ -5,8 +5,8 @@ use crate::ast::{InstructionTrait, InstructionType, PatternType};
 use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
-where
-    T: Clone,
+    where
+        T: Clone,
 {
     program: Vec<T>,
 
@@ -17,8 +17,8 @@ where
 }
 
 impl<T: InstructionTrait<T> + 'static> Evaluator<T>
-where
-    T: Clone,
+    where
+        T: Clone,
 {
     pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
@@ -58,15 +58,17 @@ where
                 }
 
                 InstructionType::Input => {
-                    if self.input.is_empty() {
-                        let mut input = String::new();
-                        std::io::stdin().read_line(&mut input).unwrap();
-                        // Convert the input to a vector of u8
-                        self.input = input.trim().bytes().collect();
+                    for _ in 0..instruction.get_amount() {
+                        if self.input.is_empty() {
+                            let mut input = String::new();
+                            std::io::stdin().read_line(&mut input).unwrap();
+                            // Convert the input to a vector of u8
+                            self.input = input.trim().bytes().collect();
+                        }
+                        self.scopes
+                            .get_current_cell_mut()
+                            .set_value(self.input.remove(0));
                     }
-                    self.scopes
-                        .get_current_cell_mut()
-                        .set_value(self.input.remove(0));
                 }
                 InstructionType::Output => {
                     for _ in 0..instruction.get_amount() {
