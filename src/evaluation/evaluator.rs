@@ -213,4 +213,14 @@ mod tests {
         let mut evaluator = Evaluator::new(instructions);
         evaluator.evaluate(None, Some(false));
     }
+
+    #[test]
+    fn test_comments() {
+        let program = String::from("++++++[>++++++++<-]>#+#.");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut evaluator = Evaluator::new(instructions);
+        evaluator.evaluate(None, Some(false));
+        assert_eq!(String::from_utf8(evaluator.output_buffer).unwrap(), "0");
+    }
 }

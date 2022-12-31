@@ -23,6 +23,7 @@ impl Parser {
     fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
         let mut index = index.unwrap_or(0);
         let mut instructions = vec![];
+        let mut comment = false;
 
         while index < self.program.len() {
             let char = match self.program.chars().nth(index) {
@@ -31,6 +32,15 @@ impl Parser {
             };
             if stop_char.is_some() && char == stop_char.unwrap() {
                 return (instructions, index);
+            }
+
+            if char == '#' {
+                comment = !comment;
+            }
+
+            if comment {
+                index += 1;
+                continue;
             }
 
             match char {
