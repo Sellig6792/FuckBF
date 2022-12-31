@@ -204,4 +204,13 @@ mod tests {
         brainfuck.evaluate(None, Some(false));
         assert_eq!(String::from_utf8(brainfuck.output_buffer).unwrap(), "AA");
     }
+
+    #[test]
+    fn test_overflow_scope_pop() {
+        let program = String::from("{´}=");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut evaluator = Evaluator::new(instructions);
+        evaluator.evaluate(None, Some(false));
+    }
 }

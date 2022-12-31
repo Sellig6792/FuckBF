@@ -136,7 +136,9 @@ where
 
     pub fn pop(&mut self) {
         self.scopes.pop();
-        self.scope_index -= 1;
+        if self.scope_index > 0 {
+            self.scope_index -= 1;
+        }
     }
 }
 
