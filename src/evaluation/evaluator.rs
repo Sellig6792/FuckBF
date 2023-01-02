@@ -65,9 +65,14 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
                             // Convert the input to a vector of u8
                             self.input = input.trim().bytes().collect();
                         }
-                        self.scopes
-                            .get_current_cell_mut()
-                            .set_value(self.input.remove(0));
+
+                        if self.input.is_empty() {
+                            self.scopes.get_current_cell_mut().set_value(0);
+                        } else {
+                            self.scopes
+                                .get_current_cell_mut()
+                                .set_value(self.input.remove(0));
+                        }
                     }
                 }
                 InstructionType::Output => {
