@@ -6,8 +6,7 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(program: String) -> Parser {
-        let program = program
-            .replace([' ', '\t', '\r', '\n'], "");
+        let program = program.replace([' ', '\t', '\r', '\n'], "");
 
         Parser { program }
     }

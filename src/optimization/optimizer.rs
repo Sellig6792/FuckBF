@@ -76,10 +76,7 @@ impl Optimizer {
         }
     }
 
-    fn cancel_opposed_instructions(
-        &self,
-        optimized_instructions: &mut Vec<OptimizedInstruction>,
-    ) {
+    fn cancel_opposed_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) {
         let mut new_optimized_instructions: Vec<OptimizedInstruction> = vec![];
 
         for optimized_instruction in optimized_instructions.iter() {
