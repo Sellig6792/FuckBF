@@ -28,7 +28,7 @@ impl Cell {
     pub fn sub<T: PrimInt>(&mut self, value: T) {
         let sub: isize = self.value as isize - value.to_isize().unwrap();
         self.value = if sub < 0 {
-            u8::MAX - (sub.abs() as u8 - 1)
+            u8::MAX - (sub.unsigned_abs() as u8 - 1)
         } else {
             sub as u8
         };

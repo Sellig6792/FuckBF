@@ -81,7 +81,7 @@ where
         let sub: isize = self.index as isize - amount as isize;
 
         self.index = if sub < 0 {
-            30000 - (sub.abs() as usize)
+            30000 - sub.unsigned_abs()
         } else {
             sub as usize
         }
@@ -136,7 +136,9 @@ where
 
     pub fn pop(&mut self) {
         self.scopes.pop();
-        self.scope_index -= 1;
+        if self.scope_index > 0 {
+            self.scope_index -= 1;
+        }
     }
 }
 

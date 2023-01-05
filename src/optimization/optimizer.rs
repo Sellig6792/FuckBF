@@ -24,7 +24,7 @@ impl Optimizer {
         optimizer.optimize()
     }
 
-    fn merge_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) -> () {
+    fn merge_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) {
         for instruction in self.instructions.iter() {
             match optimized_instructions.last_mut() {
                 Some(last_optimized_instruction) => {
@@ -76,14 +76,11 @@ impl Optimizer {
         }
     }
 
-    fn cancel_opposed_instructions(
-        &self,
-        optimized_instructions: &mut Vec<OptimizedInstruction>,
-    ) -> () {
+    fn cancel_opposed_instructions(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) {
         let mut new_optimized_instructions: Vec<OptimizedInstruction> = vec![];
 
         for optimized_instruction in optimized_instructions.iter() {
-            match new_optimized_instructions.last().clone() {
+            match new_optimized_instructions.last() {
                 Some(last_optimized_instruction) => {
                     if last_optimized_instruction.is_opposed(optimized_instruction) {
                         let last_amount = last_optimized_instruction.get_amount();
@@ -129,7 +126,7 @@ impl Optimizer {
         *optimized_instructions = new_optimized_instructions;
     }
 
-    fn recognize_patterns(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) -> () {
+    fn recognize_patterns(&self, optimized_instructions: &mut Vec<OptimizedInstruction>) {
         let mut new_optimized_instructions: Vec<OptimizedInstruction> =
             optimized_instructions.clone();
 

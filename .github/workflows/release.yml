@@ -10,31 +10,29 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  #  style:
-  #    name: Check Style
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - name: Checkout
-  #        uses: actions/checkout@v1
-  #
-  #      - name: Install rust
-  #        uses: actions-rs/toolchain@v1
-  #        with:
-  #          toolchain: stable
-  #          components: rustfmt
-  #          profile: minimal
-  #          override: true
-  #
-  #      - name: cargo fmt -- --check
-  #        uses: actions-rs/cargo@v1
-  #        with:
-  #          command: fmt
-  #          args: --all -- --check
+  style:
+    name: Check Style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          profile: minimal
+          override: true
+      - name: cargo fmt -- --check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
 
 
   test:
     name: Test
-    #    needs: [style]
+    if: always()
     runs-on: ubuntu-latest
 
     strategy:
@@ -82,19 +80,28 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     strategy:
       matrix:
+        os: [ ubuntu-latest ] # Default os for build
         target: [ aarch64-unknown-linux-gnu,
-                  armv7-unknown-linux-gnueabihf,
-                  i686-unknown-linux-gnu, i686-unknown-linux-musl,
-                  mips-unknown-linux-gnu, mips64-unknown-linux-gnuabi64, mips64el-unknown-linux-gnuabi64, mipsel-unknown-linux-gnu,
-                  powerpc-unknown-linux-gnu, powerpc64-unknown-linux-gnu, powerpc64le-unknown-linux-gnu,
-                  arm-unknown-linux-gnueabi,
-                  x86_64-unknown-linux-gnu, x86_64-unknown-linux-musl, x86_64-pc-windows-gnu ]
-        os: [ ubuntu-latest ]
-
-        include:
+                  i686-pc-windows-gnu, x86_64-pc-windows-gnu,
+                  i686-unknown-linux-gnu, x86_64-unknown-linux-gnu,
+                  x86_64-apple-darwin ]
+        exclude: # Do not build for macOS on Linux
           - target: x86_64-apple-darwin
+            os: ubuntu-latest
+        include: # List of all targets to build for and the name for common mortals
+          - target: aarch64-unknown-linux-gnu
+            name: arm64
+          - target: i686-pc-windows-gnu
+            name: win-i686
+          - target: x86_64-pc-windows-gnu
+            name: win-x86_64
+          - target: i686-unknown-linux-gnu
+            name: linux-i686
+          - target: x86_64-unknown-linux-gnu
+            name: linux-x86_64
+          - target: x86_64-apple-darwin
+            name: macos
             os: macos-latest
-
 
 
     # Runs on latest ubuntu by default except for windows targets
@@ -119,17 +126,16 @@ jobs:
           args: --release --target ${{ matrix.target }}
 
       - name: Rename binary (Linux & macOS)
-        if: matrix.target != 'x86_64-pc-windows-gnu'
-        run: mv target/${{ matrix.target }}/release/fbf target/${{ matrix.target }}/release/fbf-${{ matrix.target }}
+        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'i686-pc-windows-gnu'
+        run: mv target/${{ matrix.target }}/release/fbf target/${{ matrix.target }}/release/fbf-${{ matrix.name }}
 
       - name: Rename binary (Windows)
-        if: matrix.target == 'x86_64-pc-windows-gnu'
-        run: mv target/${{ matrix.target }}/release/fbf.exe target/${{ matrix.target }}/release/fbf-${{ matrix.target }}.exe
+        if: matrix.target == 'x86_64-pc-windows-gnu' || matrix.target == 'i686-pc-windows-gnu'
+        run: mv target/${{ matrix.target }}/release/fbf.exe target/${{ matrix.target }}/release/fbf-${{ matrix.name }}.exe
 
 
       - name: Upload release
         uses: softprops/action-gh-release@v1
         with:
-          files: target/${{ matrix.target }}/release/fbf-${{ matrix.target }}*
-          discussion_category_name: Q&A
+          files: target/${{ matrix.target }}/release/fbf-${{ matrix.name }}*
           token: ${{ secrets.PAT_GITHUB }}

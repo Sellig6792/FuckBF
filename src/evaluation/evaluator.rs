@@ -58,15 +58,22 @@ where
                 }
 
                 InstructionType::Input => {
-                    if self.input.is_empty() {
-                        let mut input = String::new();
-                        std::io::stdin().read_line(&mut input).unwrap();
-                        // Convert the input to a vector of u8
-                        self.input = input.trim().bytes().collect();
+                    for _ in 0..instruction.get_amount() {
+                        if self.input.is_empty() {
+                            let mut input = String::new();
+                            std::io::stdin().read_line(&mut input).unwrap();
+                            // Convert the input to a vector of u8
+                            self.input = input.trim().bytes().collect();
+                        }
+
+                        if self.input.is_empty() {
+                            self.scopes.get_current_cell_mut().set_value(0);
+                        } else {
+                            self.scopes
+                                .get_current_cell_mut()
+                                .set_value(self.input.remove(0));
+                        }
                     }
-                    self.scopes
-                        .get_current_cell_mut()
-                        .set_value(self.input.remove(0));
                 }
                 InstructionType::Output => {
                     for _ in 0..instruction.get_amount() {
@@ -153,7 +160,9 @@ where
         }
 
         match show_output {
-            None | Some(true) => println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap()),
+            None | Some(true) => {
+                println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap())
+            }
             _ => (),
         }
     }
@@ -170,7 +179,7 @@ mod tests {
         let program = String::from("++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
@@ -186,7 +195,7 @@ mod tests {
         let program = String::from("{++++[>++++++++++++<-]>.}{++++[>++++++++++++<-]>+.}=");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
@@ -198,10 +207,29 @@ mod tests {
         let program = String::from("{+++++[>+++++++++++++<-]>.<}==");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
         assert_eq!(String::from_utf8(brainfuck.output_buffer).unwrap(), "AA");
+    }
+
+    #[test]
+    fn test_overflow_scope_pop() {
+        let program = String::from("{´}=");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut evaluator = Evaluator::new(instructions);
+        evaluator.evaluate(None, Some(false));
+    }
+
+    #[test]
+    fn test_comments() {
+        let program = String::from("++++++[>++++++++<-]>#+#.");
+        let mut parser = ast::Parser::new(program);
+        let instructions = parser.parse();
+        let mut evaluator = Evaluator::new(instructions);
+        evaluator.evaluate(None, Some(false));
+        assert_eq!(String::from_utf8(evaluator.output_buffer).unwrap(), "0");
     }
 }

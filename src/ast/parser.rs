@@ -6,23 +6,20 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(program: String) -> Parser {
-        let program = program
-            .replace(' ', "")
-            .replace('\t', "")
-            .replace('\r', "")
-            .replace('\n', "");
+        let program = program.replace([' ', '\t', '\r', '\n'], "");
 
         Parser { program }
     }
 
     pub fn parse(&mut self) -> Vec<Instruction> {
         let (instructions, _) = self._parse(None, None);
-        return instructions;
+        instructions
     }
 
     fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
         let mut index = index.unwrap_or(0);
         let mut instructions = vec![];
+        let mut comment = false;
 
         while index < self.program.len() {
             let char = match self.program.chars().nth(index) {
@@ -31,6 +28,15 @@ impl Parser {
             };
             if stop_char.is_some() && char == stop_char.unwrap() {
                 return (instructions, index);
+            }
+
+            if char == '#' {
+                comment = !comment;
+            }
+
+            if comment {
+                index += 1;
+                continue;
             }
 
             match char {
@@ -89,6 +95,6 @@ impl Parser {
             index += 1;
         }
 
-        return (instructions, index);
+        (instructions, index)
     }
 }
