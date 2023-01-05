@@ -7,17 +7,14 @@ pub struct Parser {
 impl Parser {
     pub fn new(program: String) -> Parser {
         let program = program
-            .replace(' ', "")
-            .replace('\t', "")
-            .replace('\r', "")
-            .replace('\n', "");
+            .replace([' ', '\t', '\r', '\n'], "");
 
         Parser { program }
     }
 
     pub fn parse(&mut self) -> Vec<Instruction> {
         let (instructions, _) = self._parse(None, None);
-        return instructions;
+        instructions
     }
 
     fn _parse(&self, index: Option<usize>, stop_char: Option<char>) -> (Vec<Instruction>, usize) {
@@ -99,6 +96,6 @@ impl Parser {
             index += 1;
         }
 
-        return (instructions, index);
+        (instructions, index)
     }
 }
