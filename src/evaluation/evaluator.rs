@@ -5,8 +5,8 @@ use crate::ast::{InstructionTrait, InstructionType, PatternType};
 use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     program: Vec<T>,
 
@@ -17,8 +17,8 @@ pub struct Evaluator<T: InstructionTrait<T>>
 }
 
 impl<T: InstructionTrait<T> + 'static> Evaluator<T>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     pub fn new(instructions: Vec<T>) -> Evaluator<T> {
         Evaluator {
@@ -160,7 +160,9 @@ impl<T: InstructionTrait<T> + 'static> Evaluator<T>
         }
 
         match show_output {
-            None | Some(true) => println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap()),
+            None | Some(true) => {
+                println!("{}", String::from_utf8(self.output_buffer.clone()).unwrap())
+            }
             _ => (),
         }
     }
