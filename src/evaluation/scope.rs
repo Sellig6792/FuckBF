@@ -81,7 +81,7 @@ where
         let sub: isize = self.index as isize - amount as isize;
 
         self.index = if sub < 0 {
-            30000 - (sub.abs() as usize)
+            30000 - sub.unsigned_abs()
         } else {
             sub as usize
         }

@@ -179,7 +179,7 @@ mod tests {
         let program = String::from("++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
@@ -195,7 +195,7 @@ mod tests {
         let program = String::from("{++++[>++++++++++++<-]>.}{++++[>++++++++++++<-]>+.}=");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));
@@ -207,7 +207,7 @@ mod tests {
         let program = String::from("{+++++[>+++++++++++++<-]>.<}==");
         let mut parser = ast::Parser::new(program);
         let instructions = parser.parse();
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
         let mut brainfuck = Evaluator::new(optimized_instructions);
         brainfuck.evaluate(None, Some(false));

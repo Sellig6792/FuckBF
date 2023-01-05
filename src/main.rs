@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Optimize the program if "optimize" is true
     if args.optimize {
-        let mut optimizer = optimization::Optimizer::new(instructions.clone());
+        let mut optimizer = optimization::Optimizer::new(instructions);
         let optimized_instructions = optimizer.optimize();
 
         // Evaluate the optimized program
