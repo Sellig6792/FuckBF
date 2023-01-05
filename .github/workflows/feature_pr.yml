@@ -32,7 +32,7 @@ jobs:
 
   test:
     name: Test
-    needs: [style]
+    if: always()
     runs-on: ubuntu-latest
 
     strategy:
