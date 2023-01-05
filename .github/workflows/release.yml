@@ -81,6 +81,10 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ] # Default os for build
+        target: [ aarch64-unknown-linux-gnu,
+                  i686-pc-windows-gnu, x86_64-pc-windows-gnu,
+                  i686-unknown-linux-gnu, x86_64-unknown-linux-gnu,
+                  x86_64-apple-darwin ]
         include: # List of all targets to build for and the name for common mortals
           - target: aarch64-unknown-linux-gnu
             name: arm64
@@ -95,9 +99,6 @@ jobs:
           - target: x86_64-apple-darwin
             name: macos
             os: macos-latest
-
-
-
 
 
     # Runs on latest ubuntu by default except for windows targets
