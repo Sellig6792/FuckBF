@@ -105,9 +105,9 @@ Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
 2. Checkout the develop branch: `git checkout develop`
-3. Create your Feature Branch: `git branch feat/AmazingFeature`
-4. Commit your Changes: `git commit -m 'Add some AmazingFeature'`
-5. Push to the Branch: `git push origin feat/AmazingFeature`
+3. Create your Branch (feature or fix): `git checkout -b [feature/fix]/[name]`
+4. Commit your Changes: `git commit -m 'Add some [...]`
+5. Push to the Branch: `git push origin [feature/fix]/[name]`
 6. Open a Pull Request to the develop branch and explain your changes
 
 <p align="right">(<a href="#top">back to top</a>)</p>
