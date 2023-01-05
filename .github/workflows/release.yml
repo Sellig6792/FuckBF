@@ -81,6 +81,13 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ] # Default os for build
+        target: [ aarch64-unknown-linux-gnu,
+                  i686-pc-windows-gnu, x86_64-pc-windows-gnu,
+                  i686-unknown-linux-gnu, x86_64-unknown-linux-gnu,
+                  x86_64-apple-darwin ]
+        exclude: # Do not build for macOS on Linux
+          - target: x86_64-apple-darwin
+            os: ubuntu-latest
         include: # List of all targets to build for and the name for common mortals
           - target: aarch64-unknown-linux-gnu
             name: arm64
@@ -95,9 +102,6 @@ jobs:
           - target: x86_64-apple-darwin
             name: macos
             os: macos-latest
-
-
-
 
 
     # Runs on latest ubuntu by default except for windows targets
@@ -122,11 +126,11 @@ jobs:
           args: --release --target ${{ matrix.target }}
 
       - name: Rename binary (Linux & macOS)
-        if: matrix.target != 'x86_64-pc-windows-gnu'
+        if: matrix.target != 'x86_64-pc-windows-gnu' && matrix.target != 'i686-pc-windows-gnu'
         run: mv target/${{ matrix.target }}/release/fbf target/${{ matrix.target }}/release/fbf-${{ matrix.name }}
 
       - name: Rename binary (Windows)
-        if: matrix.target == 'x86_64-pc-windows-gnu'
+        if: matrix.target == 'x86_64-pc-windows-gnu' || matrix.target == 'i686-pc-windows-gnu'
         run: mv target/${{ matrix.target }}/release/fbf.exe target/${{ matrix.target }}/release/fbf-${{ matrix.name }}.exe
 
 
