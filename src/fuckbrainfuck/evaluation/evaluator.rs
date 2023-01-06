@@ -1,8 +1,8 @@
 use rand::Rng;
 
-use crate::ast::{InstructionTrait, InstructionType, PatternType};
+use crate::fuckbrainfuck::ast::{InstructionTrait, InstructionType, PatternType};
 
-use crate::evaluation::{Cell, Scopes};
+use super::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
 where

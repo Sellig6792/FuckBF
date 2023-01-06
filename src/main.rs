@@ -1,52 +1,19 @@
-mod ast;
-mod evaluation;
-mod optimization;
-
-use std::fs;
-
-use anyhow::{Context, Result};
 use clap::Parser;
 
-use crate::evaluation::Evaluator;
+mod cli;
+mod fuckbrainfuck;
 
-#[derive(Parser)]
-#[command(author, version, about)]
-struct CLI {
-    // Path is positional argument
-    #[arg(required = true, help = "Path to the file to execute")]
-    path: std::path::PathBuf,
-
-    #[arg(
-        short = 'O',
-        long = "optimize",
-        help = "Optimize the code",
-        default_value = "false"
-    )]
-    optimize: bool,
-}
+use cli::Cli;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = CLI::parse();
-    // Read the file and quit if it's not found
-    let program = fs::read_to_string(&args.path)
-        .with_context(|| format!("Could not read file `{}`", args.path.to_str().unwrap()))?;
+    let args = Cli::parse();
 
-    // Parse the program
-    let mut parser = ast::Parser::new(program);
-    let instructions = parser.parse();
-
-    // Optimize the program if "optimize" is true
-    if args.optimize {
-        let mut optimizer = optimization::Optimizer::new(instructions);
-        let optimized_instructions = optimizer.optimize();
-
-        // Evaluate the optimized program
-        let mut brainfuck = Evaluator::new(optimized_instructions);
-        brainfuck.evaluate(None, None);
-    } else {
-        // Evaluate the program
-        let mut brainfuck = Evaluator::new(instructions);
-        brainfuck.evaluate(None, None);
+    if let Some(subcommand) = args.subcommand {
+        match subcommand {
+            cli::Subcommand::Run(run) => run.run()?,
+            cli::Subcommand::Update(update) => update.update()?,
+            cli::Subcommand::Version(version) => version.version()?,
+        }
     }
 
     Ok(())
