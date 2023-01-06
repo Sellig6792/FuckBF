@@ -24,7 +24,6 @@ pub enum Subcommand {
     #[clap(about = "Update FuckBrainfuck to the latest version")]
     Update(Update),
 
-
     #[clap(about = "Prints the version of the program")]
     Version(Version),
 }
@@ -44,8 +43,6 @@ pub struct Update {}
 
 #[derive(clap::Parser)]
 pub struct Version {}
-
-
 
 
 impl Run {
@@ -83,10 +80,9 @@ impl Update {
 }
 
 
-
-
 impl Version {
     pub fn version(&self) -> Result<(), Box<dyn std::error::Error>> {
-        todo!()
+        println!("FuckBrainfuck {}", env!("CARGO_PKG_VERSION"));
+        Ok(())
     }
 }
