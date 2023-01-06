@@ -143,9 +143,7 @@ impl Optimizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::pattern_structs;
-    use crate::ast::{InstructionType, PatternType};
-    use crate::fuckbrainfuck::ast::pattern_structs;
+    use crate::fuckbrainfuck::ast::{pattern_structs, InstructionType, PatternType};
 
     #[test]
     fn test_merge_instructions() {

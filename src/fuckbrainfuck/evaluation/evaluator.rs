@@ -171,8 +171,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast;
-    use crate::optimization;
+    use crate::fuckbrainfuck::{ast, optimization};
 
     #[test]
     fn test_hello_world() {
