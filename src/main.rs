@@ -1,7 +1,7 @@
 use clap::Parser;
 
 mod cli;
-mod fuckbrainfuck;
+mod fuckbf;
 
 use cli::Cli;
 

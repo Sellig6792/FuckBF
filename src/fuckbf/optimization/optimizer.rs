@@ -1,4 +1,4 @@
-use crate::fuckbrainfuck::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
+use crate::fuckbf::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
 
 use super::OptimizedInstruction;
 
@@ -143,7 +143,7 @@ impl Optimizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fuckbrainfuck::ast::{pattern_structs, InstructionType, PatternType};
+    use crate::fuckbf::ast::{pattern_structs, InstructionType, PatternType};
 
     #[test]
     fn test_merge_instructions() {

@@ -7,8 +7,8 @@ use colored::Colorize;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use serde_json::Value;
 
-use crate::fuckbrainfuck::evaluation::Evaluator;
-use crate::fuckbrainfuck::*;
+use crate::fuckbf::evaluation::Evaluator;
+use crate::fuckbf::*;
 
 #[derive(clap::Parser)]
 #[clap(author, about, version)]
@@ -20,10 +20,10 @@ pub struct Cli {
 
 #[derive(clap::Subcommand)]
 pub enum Subcommand {
-    #[clap(about = "Run the given FuckBrainfuck program")]
+    #[clap(about = "Run the given FuckBF program")]
     Run(Run),
 
-    #[clap(about = "Update FuckBrainfuck to the latest version")]
+    #[clap(about = "Update FuckBF to the latest version")]
     Update(Update),
 
     #[clap(about = "Prints the version of the program")]
@@ -84,13 +84,13 @@ impl Run {
 
 impl Update {
     fn get_binary_name() -> String {
-        String::from(match env!("FUCKBRAINFUCK_TARGET_OS") {
-            "aarch64-unknown-linux-gnu" => "fbf-arm64",
-            "i686-unknown-linux-gnu" => "fbf-linux-i686",
-            "x86_64-unknown-linux-gnu" => "fbf-linux-x86_64",
-            "x86_64-apple-darwin" => "fbf-macos",
-            "i686-pc-windows-gnu" => "fbf-win-i686.exe",
-            "x86_64-pc-windows-gnu" => "fbf-win-x86_64.exe",
+        String::from(match env!("FUCKBF_TARGET_OS") {
+            "aarch64-unknown-linux-gnu" => "fuckbf-arm64",
+            "i686-unknown-linux-gnu" => "fuckbf-linux-i686",
+            "x86_64-unknown-linux-gnu" => "fuckbf-linux-x86_64",
+            "x86_64-apple-darwin" => "fuckbf-macos",
+            "i686-pc-windows-gnu" => "fuckbf-win-i686.exe",
+            "x86_64-pc-windows-gnu" => "fuckbf-win-x86_64.exe",
             _ => panic!(
                 "No precompiled binary for this target, please compile from source.\
                 For more information,see {}#2-building-from-source",
@@ -155,7 +155,7 @@ impl Update {
         println!("  {} latest version", "Installing".green().bold());
 
         let path = env::current_dir().expect("Could not get the current directory");
-        let path = path.join("new-fbf");
+        let path = path.join("new-fuckbf");
 
         // Write the binary to the current directory
         let mut file = fs::File::create(&path).expect("Could not create the file");
@@ -174,7 +174,7 @@ impl Update {
 
 impl Version {
     pub fn version(&self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("FuckBrainfuck {}", env!("CARGO_PKG_VERSION"));
+        println!("FuckBF {}", env!("CARGO_PKG_VERSION"));
         Ok(())
     }
 }
