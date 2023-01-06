@@ -1,6 +1,6 @@
-use crate::ast::{InstructionTrait, InstructionType};
+use crate::fuckbrainfuck::ast::{InstructionTrait, InstructionType};
 
-use crate::evaluation::Cell;
+use super::Cell;
 
 #[derive(Clone)]
 pub struct Scope<T: InstructionTrait<T>> {

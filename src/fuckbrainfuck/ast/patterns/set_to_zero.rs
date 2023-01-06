@@ -1,4 +1,6 @@
-use crate::ast::{InstructionTrait, InstructionType, Pattern, PatternType};
+use crate::fuckbrainfuck::ast::InstructionType;
+use super::{InstructionTrait, Pattern, PatternType};
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SetToZero {}

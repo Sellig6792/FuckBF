@@ -1,4 +1,4 @@
-use crate::ast::{Instruction, InstructionType};
+use crate::fuckbrainfuck::ast::{Instruction, InstructionType};
 
 pub struct Parser {
     program: String,

@@ -1,6 +1,6 @@
-use crate::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
+use crate::fuckbrainfuck::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
 
-use crate::optimization::OptimizedInstruction;
+use super::OptimizedInstruction;
 
 pub struct Optimizer {
     instructions: Vec<Instruction>,
@@ -145,6 +145,7 @@ mod tests {
     use super::*;
     use crate::ast::pattern_structs;
     use crate::ast::{InstructionType, PatternType};
+    use crate::fuckbrainfuck::ast::pattern_structs;
 
     #[test]
     fn test_merge_instructions() {
