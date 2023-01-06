@@ -145,7 +145,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::Instruction;
+    use crate::fuckbrainfuck::ast::Instruction;
 
     #[test]
     fn test_move_right() {
