@@ -1,17 +1,17 @@
 [package]
-name = "fuckbrainfuck"
+name = "FuckBF"
 version = "2.1.0"
 edition = "2021"
 authors = ["Sellig6792 <sellig6792@gmail.com>"]
 description = "The improved Brainfuck"
 
-repository = "https://github.com/Sellig6792/FuckBrainfuck"
-homepage = "https://github.com/Sellig6792/FuckBrainfuck"
+repository = "https://github.com/Sellig6792/FuckBF"
+homepage = "https://github.com/Sellig6792/FuckBF"
 readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "fbf"
+name = "fuckbf"
 path = "src/main.rs"
 
 [dependencies]

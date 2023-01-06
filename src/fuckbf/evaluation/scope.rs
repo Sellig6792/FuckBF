@@ -1,4 +1,4 @@
-use crate::fuckbrainfuck::ast::{InstructionTrait, InstructionType};
+use crate::fuckbf::ast::{InstructionTrait, InstructionType};
 
 use super::Cell;
 
@@ -145,7 +145,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fuckbrainfuck::ast::Instruction;
+    use crate::fuckbf::ast::Instruction;
 
     #[test]
     fn test_move_right() {

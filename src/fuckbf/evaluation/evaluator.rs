@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::fuckbrainfuck::ast::{InstructionTrait, InstructionType, PatternType};
+use crate::fuckbf::ast::{InstructionTrait, InstructionType, PatternType};
 
 use super::{Cell, Scopes};
 
@@ -171,7 +171,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fuckbrainfuck::{ast, optimization};
+    use crate::fuckbf::{ast, optimization};
 
     #[test]
     fn test_hello_world() {

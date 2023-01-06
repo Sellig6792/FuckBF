@@ -1,4 +1,4 @@
-use crate::fuckbrainfuck::ast::InstructionType;
+use crate::fuckbf::ast::InstructionType;
 
 pub trait InstructionTrait<T> {
     fn new(instruction_type: InstructionType, content: Option<Vec<T>>) -> Self;

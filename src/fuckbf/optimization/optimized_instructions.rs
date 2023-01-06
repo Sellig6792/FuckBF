@@ -1,4 +1,4 @@
-use crate::fuckbrainfuck::ast::{InstructionTrait, InstructionType};
+use crate::fuckbf::ast::{InstructionTrait, InstructionType};
 
 #[derive(Clone)]
 pub struct OptimizedInstruction {

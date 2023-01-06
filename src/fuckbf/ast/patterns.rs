@@ -1,7 +1,7 @@
 mod set_to_zero;
 
 use super::InstructionTrait;
-use crate::fuckbrainfuck::optimization::OptimizedInstruction;
+use crate::fuckbf::optimization::OptimizedInstruction;
 
 pub mod pattern_structs {
     pub use super::set_to_zero::SetToZero;
