@@ -1,4 +1,5 @@
 use clap::Parser;
+use colored::Colorize;
 
 mod cli;
 mod fuckbf;
@@ -6,15 +7,23 @@ mod fuckbf;
 use cli::Cli;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Before running help or version, delete the old file
+    cli::update::delete_old_file();
+
     let args = Cli::parse();
 
-    if let Some(subcommand) = args.subcommand {
-        match subcommand {
-            cli::Subcommand::Run(run) => run.run()?,
-            cli::Subcommand::Update(update) => update.update()?,
-            cli::Subcommand::Version(version) => version.version()?,
-        }
+    if args.update {
+        cli::update::update()?;
+    } else if let Some(path) = args.path {
+        cli::run(&path, args.optimize)?;
+    } else {
+        println!("{} The following required arguments were not provided:\n  {}\n\n{} {} [OPTIONS] [PATH]\n\nFor more information try {}",
+                 "error:".red().bold(),
+                 "PATH".green(),
+                 "Usage:".bold().underline(),
+                 "fuckbf.exe".bold(),
+                 "'--help'".bold()
+        );
     }
-
     Ok(())
 }

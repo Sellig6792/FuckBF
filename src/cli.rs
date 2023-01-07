@@ -1,96 +1,84 @@
-use std::io::Write;
-use std::{env, fs, path};
+use std::{fs, path};
 
 use anyhow::Context;
-use clap;
+use clap::{arg, Parser};
 use colored::Colorize;
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
-use serde_json::Value;
 
-use crate::fuckbf::evaluation::Evaluator;
-use crate::fuckbf::*;
+use crate::fuckbf::{evaluation::Evaluator, *};
 
-#[derive(clap::Parser)]
+#[derive(Parser)]
 #[clap(author, about, version)]
 #[clap(propagate_version = true)]
 pub struct Cli {
-    #[clap(subcommand)]
-    pub subcommand: Option<Subcommand>,
-}
+    // Path
+    #[arg(required = false, help = "Path to the file to execute")]
+    pub path: Option<path::PathBuf>,
 
-#[derive(clap::Subcommand)]
-pub enum Subcommand {
-    #[clap(about = "Run the given FuckBF program")]
-    Run(Run),
-
-    #[clap(about = "Update FuckBF to the latest version")]
-    Update(Update),
-
-    #[clap(about = "Prints the version of the program")]
-    Version(Version),
-}
-
-#[derive(clap::Parser)]
-pub struct Run {
-    #[arg(required = true, help = "Path to the file to execute")]
-    pub path: path::PathBuf,
-
-    #[clap(short, long, help = "Optimize the program before running it")]
+    // Optimize flag (if path is given)
+    #[arg(
+        short = 'O',
+        long = "optimize",
+        help = "Optimize the code before executing it",
+        default_value = "false"
+    )]
     pub optimize: bool,
+
+    // Update option (if no path is given)
+    #[arg(short = 'U', long = "update", help = "Update the program")]
+    pub update: bool,
 }
 
-#[derive(clap::Parser)]
-pub struct Update {}
+pub fn run(path: &path::PathBuf, optimize: bool) -> Result<(), Box<dyn std::error::Error>> {
+    let program = fs::read_to_string(path)
+        .with_context(|| format!("Could not read file: {}", path.display()))?;
 
-#[derive(clap::Parser)]
-pub struct Version {}
+    // Parse the program
+    let mut parser = ast::Parser::new(program);
+    let instructions = parser.parse();
 
-// This macro returns the github api url for the given repository
-macro_rules! get_api_url {
-    ($repo_url:expr) => {
-        format!(
-            "https://api.github.com/repos/{}",
-            $repo_url.replace("https://github.com/", "")
-        )
-    };
-}
+    // Optimize the program if "optimize" is true
+    if optimize {
+        let mut optimizer = optimization::Optimizer::new(instructions);
+        let optimized_instructions = optimizer.optimize();
 
-impl Run {
-    pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let program = fs::read_to_string(&self.path)
-            .with_context(|| format!("Could not read file: {}", self.path.display()))?;
-
-        // Parse the program
-        let mut parser = ast::Parser::new(program);
-        let instructions = parser.parse();
-
-        // Optimize the program if "optimize" is true
-        if self.optimize {
-            let mut optimizer = optimization::Optimizer::new(instructions);
-            let optimized_instructions = optimizer.optimize();
-
-            // Evaluate the optimized program
-            let mut brainfuck = Evaluator::new(optimized_instructions);
-            brainfuck.evaluate(None, None);
-        } else {
-            // Evaluate the program
-            let mut brainfuck = Evaluator::new(instructions);
-            brainfuck.evaluate(None, None);
-        }
-
-        Ok(())
+        // Evaluate the optimized program
+        let mut brainfuck = Evaluator::new(optimized_instructions);
+        brainfuck.evaluate(None, None);
+    } else {
+        // Evaluate the program
+        let mut brainfuck = Evaluator::new(instructions);
+        brainfuck.evaluate(None, None);
     }
+
+    Ok(())
 }
 
-impl Update {
+pub mod update {
+    use super::Colorize;
+    use anyhow::Context;
+    use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+    use serde_json::Value;
+    use std::io::Write;
+    use std::{env, fs};
+
+    // This macro returns the github api url for the given repository
+    macro_rules! get_api_url {
+        ($repo_url:expr) => {
+            format!(
+                "https://api.github.com/repos/{}",
+                $repo_url.replace("https://github.com/", "")
+            )
+        };
+    }
+
     fn get_binary_name() -> String {
         String::from(match env!("FUCKBF_TARGET_OS") {
             "aarch64-unknown-linux-gnu" => "fuckbf-arm64",
             "i686-unknown-linux-gnu" => "fuckbf-linux-i686",
-            "x86_64-unknown-linux-gnu" => "fuckbf-linux-x86_64",
+            "x86_64-unknown-linux-gnu" => "fbf-linux-x86_64",
             "x86_64-apple-darwin" => "fuckbf-macos",
             "i686-pc-windows-gnu" => "fuckbf-win-i686.exe",
-            "x86_64-pc-windows-gnu" => "fuckbf-win-x86_64.exe",
+            "x86_64-pc-windows-gnu" => "fbf-win-x86_64.exe",
             _ => panic!(
                 "No precompiled binary for this target, please compile from source.\
                 For more information,see {}#2-building-from-source",
@@ -128,16 +116,34 @@ impl Update {
         json
     }
 
-    pub fn update(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let binding = Self::get_api_json("releases/latest");
-        let assets = binding.get("assets").unwrap().as_array().unwrap();
+    pub fn update() -> Result<(), Box<dyn std::error::Error>> {
+        let binding_current_exe = env::current_exe().unwrap();
+        let installation_dir = binding_current_exe.parent().unwrap();
+        let binding_api_latest_release = get_api_json("releases/latest");
+        let assets = binding_api_latest_release
+            .get("assets")
+            .unwrap()
+            .as_array()
+            .unwrap();
 
         let download_url: String = assets
             .iter()
-            .find(|asset| asset.get("name").unwrap().as_str().unwrap() == Self::get_binary_name())
-            .unwrap()
+            .find(|asset| asset.get("name").unwrap().as_str().unwrap() == get_binary_name())
+            .with_context(|| {
+                format!(
+                    "No precompiled binary for this target, please compile from source.\
+            For more information,see {}#2-building-from-source",
+                    env!("CARGO_PKG_HOMEPAGE")
+                )
+            })?
             .get("browser_download_url")
-            .unwrap()
+            .with_context(|| {
+                format!(
+                    "No precompiled binary for this target, please compile from source.\
+            For more information,see {}#2-building-from-source",
+                    env!("CARGO_PKG_HOMEPAGE")
+                )
+            })?
             .to_string()
             .replace("\"", "");
 
@@ -154,27 +160,35 @@ impl Update {
 
         println!("  {} latest version", "Installing".green().bold());
 
-        let path = env::current_dir().expect("Could not get the current directory");
-        let path = path.join("new-fuckbf");
+        let path = installation_dir.join("fuckbf.new");
 
         // Write the binary to the current directory
-        let mut file = fs::File::create(&path).expect("Could not create the file");
+        let mut file = fs::File::create(&path).expect("Could not create the new binary");
         file.write_all(&binary)
             .expect("Could not write to the file");
 
-        // Move the new binary to the current directory
-        fs::rename(&path, env::current_exe().unwrap())
-            .expect("Could not move the new binary to the current directory");
+        let current_binary = env::current_exe().unwrap();
 
-        println!("    {} latest version", "Updated".green().bold());
+        // Move current binary to a .old file
+        fs::rename(&current_binary, installation_dir.join("fuckbf.old"))
+            .expect("Could not rename the current binary");
+
+        // Move the new binary to the current binary
+        fs::rename(&path, &current_binary).expect("Could not rename the new binary");
+
+        println!("     {} latest version", "Updated".green().bold());
 
         Ok(())
     }
-}
 
-impl Version {
-    pub fn version(&self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("FuckBF {}", env!("CARGO_PKG_VERSION"));
-        Ok(())
+    // Delete the {}.old file if it exists it was generated by a previous update (the file is in the same directory as the executable)
+    pub fn delete_old_file() {
+        let mut old_file_path = env::current_exe().unwrap();
+        old_file_path.pop();
+        old_file_path.push("fuckbf.old");
+
+        if old_file_path.exists() {
+            fs::remove_file(&old_file_path).expect("Could not delete old file");
+        }
     }
 }
