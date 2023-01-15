@@ -11,7 +11,7 @@ pub trait Pattern<T>
 where
     T: InstructionTrait<T>,
 {
-    fn match_pattern(&self, instructions: &Vec<T>) -> bool;
+    fn match_pattern(&self, instructions: &[T]) -> bool;
     fn replace(&self, instructions: Vec<T>) -> Vec<T>;
 }
 

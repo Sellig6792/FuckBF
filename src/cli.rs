@@ -2,7 +2,6 @@ use std::{fs, path};
 
 use anyhow::Context;
 use clap::{arg, Parser};
-use colored::Colorize;
 
 use crate::fuckbf::{evaluation::Evaluator, *};
 
