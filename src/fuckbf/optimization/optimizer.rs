@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use crate::fuckbf::ast::{Instruction, InstructionTrait, InstructionType, PatternType};
 
 use super::OptimizedInstruction;
@@ -86,23 +88,27 @@ impl Optimizer {
                         let last_amount = last_optimized_instruction.get_amount();
                         let current_amount = optimized_instruction.get_amount();
 
-                        if last_amount > current_amount {
-                            new_optimized_instructions
-                                .last_mut()
-                                .expect("Error while getting last optimized instruction")
-                                .sub(current_amount);
-                        } else if last_amount < current_amount {
-                            new_optimized_instructions.pop();
-                            new_optimized_instructions.push(OptimizedInstruction::new(
-                                optimized_instruction.get_instruction_type(),
-                                None,
-                            ));
-                            new_optimized_instructions
-                                .last_mut()
-                                .expect("Error while getting last optimized instruction")
-                                .set_amount(current_amount - last_amount);
-                        } else {
-                            new_optimized_instructions.pop();
+                        match last_amount.cmp(&current_amount) {
+                            Ordering::Greater => {
+                                new_optimized_instructions
+                                    .last_mut()
+                                    .expect("Error while getting last optimized instruction")
+                                    .sub(current_amount);
+                            }
+                            Ordering::Less => {
+                                new_optimized_instructions.pop();
+                                new_optimized_instructions.push(OptimizedInstruction::new(
+                                    optimized_instruction.get_instruction_type(),
+                                    None,
+                                ));
+                                new_optimized_instructions
+                                    .last_mut()
+                                    .expect("Error while getting last optimized instruction")
+                                    .set_amount(current_amount - last_amount);
+                            }
+                            Ordering::Equal => {
+                                new_optimized_instructions.pop();
+                            }
                         }
                     } else if last_optimized_instruction.get_instruction_type()
                         == optimized_instruction.get_instruction_type()
