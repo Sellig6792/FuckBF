@@ -21,6 +21,10 @@ pub struct Cli {
         default_value = "false"
     )]
     pub optimize: bool,
+
+    // Update option (if no path is given)
+    #[arg(short = 'U', long = "update", help = "Update the program")]
+    pub update: bool,
 }
 
 pub fn run(path: &path::PathBuf, optimize: bool) -> Result<(), Box<dyn std::error::Error>> {
