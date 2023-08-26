@@ -14,8 +14,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let args = Cli::parse();
 
-    if args.update {
-        update::update()?;
+    if args.update || args.update_force {
+        update::update(args.update_force)?;
     } else if let Some(path) = args.path {
         cli::run(&path, args.optimize)?;
     } else {

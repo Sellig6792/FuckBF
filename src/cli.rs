@@ -25,6 +25,9 @@ pub struct Cli {
     // Update option (if no path is given)
     #[arg(short = 'U', long = "update", help = "Update the program")]
     pub update: bool,
+
+    #[arg(long= "update-force", help="Force to install the last version from the main branch of the Github repository ", visible_aliases=["uf", "fu", "force-update"])]
+    pub update_force: bool,
 }
 
 pub fn run(path: &path::PathBuf, optimize: bool) -> Result<(), Box<dyn std::error::Error>> {
