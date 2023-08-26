@@ -3,6 +3,7 @@ use colored::Colorize;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use serde_json::Value;
 use std::io::Write;
+use std::ops::Not;
 use std::{env, fs};
 
 use crate::version::Version;
@@ -45,7 +46,7 @@ fn get_api_json(endpoint: &str) -> Value {
     json
 }
 
-pub fn update() -> Result<(), Box<dyn std::error::Error>> {
+pub fn update(force_update: bool) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(not(fuckbf_updatable))]
     {
         println!(
@@ -66,7 +67,7 @@ pub fn update() -> Result<(), Box<dyn std::error::Error>> {
             .unwrap(),
     );
     let current_version = Version::parse(env!("CARGO_PKG_VERSION"));
-    if current_version >= version {
+    if current_version >= version && force_update.not() {
         println!("     {} up-to-date", "Already".green().bold());
         std::process::exit(0);
     }
