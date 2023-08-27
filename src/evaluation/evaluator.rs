@@ -1,8 +1,8 @@
 use rand::Rng;
 
-use crate::fuckbf::ast::{InstructionTrait, InstructionType, PatternType};
+use crate::ast::{InstructionTrait, InstructionType, PatternType};
 
-use super::{Cell, Scopes};
+use crate::evaluation::{Cell, Scopes};
 
 pub struct Evaluator<T: InstructionTrait<T>>
 where
@@ -171,7 +171,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fuckbf::{ast, optimization};
+    use crate::ast;
+    use crate::optimization;
 
     #[test]
     fn test_hello_world() {

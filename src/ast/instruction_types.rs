@@ -1,4 +1,4 @@
-use super::PatternType;
+use crate::ast::patterns::PatternType;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum InstructionType {
